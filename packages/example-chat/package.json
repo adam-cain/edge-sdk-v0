@@ -12,6 +12,7 @@
   "dependencies": {
     "@libp2p/interface": "^2.0.1",
     "@turbo-ing/edge-v0": "workspace:*",
+    "lodash.debounce": "^4.0.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwindcss": "^3.4.11",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
+    "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^22.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
