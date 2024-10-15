@@ -4,6 +4,7 @@ import { jamReducer, initialState } from "./reducers/jam";
 import TurboLogo from "./assets/turbo-logo.svg";
 import PingPeers from "./PingPeers";
 import RoomModal from "./components/RoomModal";
+import Cursor from "./components/Cursor";
 import stringToColor from "./util/stringToCursor";
 import debounce from 'lodash.debounce';
 
@@ -105,9 +106,9 @@ function App() {
             {roomIdCommitted &&
               (connected ? (
                 <div
-                  className="bg-white size-full"
+                  className="bg-white size-full overflow-hidden"
                   ref={boardRef}
-                  style={{ position: 'relative', width: '100%', height: '100%' }} // Added styles
+                  style={{ position: 'relative', width: '100%', height: '100%' }} 
                 >
                   {state.cursors.map((cursor, i) => (
                     <div
@@ -117,12 +118,11 @@ function App() {
                         left: cursor.x,
                         top: cursor.y,
                         pointerEvents: 'none',
-                        backgroundColor: stringToColor(cursor.peerId),
-                        width: '10px',
-                        height: '10px',
-                        borderRadius: '50%',
+                        width: '30px',
+                        height: '30px',
                       }}
                     >
+                      <Cursor color={stringToColor(cursor.peerId)} size={30}/>
                       <span>{state.names[cursor.peerId] || cursor.peerId}</span>
                     </div>
                   ))}
