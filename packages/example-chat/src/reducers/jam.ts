@@ -2,7 +2,7 @@ import { EdgeAction } from "@turbo-ing/edge-v0";
 
 export type CursorPosition = {
   x: number;
-  y: number,
+  y: number;
   peerId: string;
 };
 
@@ -22,55 +22,62 @@ export interface JamState {
   drawings: Drawing[];
 }
 
-interface SetRecipientNameAction extends EdgeAction<JamState> {
-  type: 'SET_RECIPIENT_NAME';
+interface BaseJamAction extends EdgeAction<JamState> {
+  peerId: string;
+  type: string;
+}
+
+interface SetRecipientNameAction extends BaseJamAction {
+  type: "SET_RECIPIENT_NAME";
   payload: {
     name: string;
   };
 }
 
-interface UpdateCursorAction extends EdgeAction<JamState> {
-  type: 'UPDATE_CURSOR';
+interface UpdateCursorAction extends BaseJamAction {
+  type: "UPDATE_CURSOR";
   payload: {
     x: number;
-    y: number
+    y: number;
   };
 }
 
-interface StartDrawingAction extends EdgeAction<JamState> {
-  type: 'START_DRAWING';
+interface StartDrawingAction extends BaseJamAction {
+  type: "START_DRAWING";
 }
 
-interface AddDrawingPointAction extends EdgeAction<JamState> {
-  type: 'ADD_DRAWING_POINT';
+interface AddDrawingPointAction extends BaseJamAction {
+  type: "ADD_DRAWING_POINT";
   payload: DrawingPoint;
 }
 
-interface StopDrawingAction extends EdgeAction<JamState> {
-  type: 'STOP_DRAWING';
+interface StopDrawingAction extends BaseJamAction {
+  type: "STOP_DRAWING";
 }
 
-export type JamAction = 
-  | SetRecipientNameAction 
+interface ResetStateAction extends BaseJamAction {
+  type: "RESET_STATE";
+}
+
+export type JamAction =
+  | SetRecipientNameAction
   | UpdateCursorAction
   | StartDrawingAction
   | AddDrawingPointAction
-  | StopDrawingAction;
+  | StopDrawingAction
+  | ResetStateAction;
 
 export const initialState: JamState = {
   cursors: [],
   names: {},
-  drawings: []
+  drawings: [],
 };
 
-export function jamReducer(
-  state: JamState = initialState,
-  action: JamAction
-): JamState {
-  if (!action.peerId) return state
+export function jamReducer(state: JamState = initialState, action: JamAction): JamState {
+  if (!action.peerId) return state;
 
   switch (action.type) {
-    case 'SET_RECIPIENT_NAME': {
+    case "SET_RECIPIENT_NAME": {
       const { name } = action.payload;
       return {
         ...state,
@@ -80,12 +87,12 @@ export function jamReducer(
         },
       };
     }
-    case 'UPDATE_CURSOR': {
+    case "UPDATE_CURSOR": {
       const { x, y } = action.payload;
       const existingCursorIndex = state.cursors.findIndex(
         (cursor) => cursor.peerId === action.peerId
       );
-    
+
       if (existingCursorIndex !== -1) {
         // Update existing cursor
         const updatedCursors = [...state.cursors];
@@ -112,8 +119,12 @@ export function jamReducer(
         };
       }
     }
-    case 'START_DRAWING': {
+    case "START_DRAWING": {
       // Initialize a new drawing for the peer
+      // Prevent multiple drawings for the same peer
+      if (state.drawings.find((d) => d.peerId === action.peerId)) {
+        return state;
+      }
       return {
         ...state,
         drawings: [
@@ -125,7 +136,7 @@ export function jamReducer(
         ],
       };
     }
-    case 'ADD_DRAWING_POINT': {
+    case "ADD_DRAWING_POINT": {
       const { x, y } = action.payload;
       const drawingIndex = state.drawings.findIndex(
         (drawing) => drawing.peerId === action.peerId
@@ -145,9 +156,28 @@ export function jamReducer(
         return state;
       }
     }
-    case 'STOP_DRAWING': {
-      // Optional: logic to stop drawing or finalize a drawing
+    case "STOP_DRAWING": {
+      // Remove the drawing if it has no points
+      const drawingIndex = state.drawings.findIndex(
+        (drawing) => drawing.peerId === action.peerId
+      );
+      if (drawingIndex !== -1) {
+        const drawing = state.drawings[drawingIndex];
+        if (drawing.points.length === 0) {
+          // Remove empty drawing
+          const updatedDrawings = state.drawings.filter(
+            (_, index) => index !== drawingIndex
+          );
+          return {
+            ...state,
+            drawings: updatedDrawings,
+          };
+        }
+      }
       return state;
+    }
+    case "RESET_STATE": {
+      return initialState;
     }
     default:
       return state;

@@ -1,9 +1,13 @@
-interface cursorProps{
+import React from "react";
+import { CursorPosition } from "../reducers/jam";
+import stringToColor from "../util/stringToCursor";
+
+interface cursorProps {
     color: string
     size: number
 }
 
-const Cursor = ({color, size}: cursorProps) => {
+const CursorIcon = ({ color, size }: cursorProps) => {
     return (
         <div>
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -12,5 +16,47 @@ const Cursor = ({color, size}: cursorProps) => {
         </div>
     );
 };
+
+const Cursor = React.memo(
+    ({
+        cursor,
+        name,
+    }: {
+        cursor: CursorPosition;
+        name: string;
+    }) => (
+        <div
+            style={{
+                position: "absolute",
+                left: `${cursor.x}px`,
+                top: `${cursor.y}px`,
+                pointerEvents: "none",
+                width: "30px",
+                height: "30px",
+                transform: "translate(-50%, -50%)",
+            }}
+        >
+            <CursorIcon color={stringToColor(cursor.peerId)} size={30} />
+            <span
+                style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    whiteSpace: "nowrap",
+                    backgroundColor: "rgba(0, 0, 0, 0.6)",
+                    color: "white",
+                    padding: "2px 4px",
+                    borderRadius: "4px",
+                    marginTop: "4px",
+                    fontSize: "12px",
+                    pointerEvents: "none",
+                }}
+            >
+                {name}
+            </span>
+        </div>
+    )
+);
 
 export default Cursor
