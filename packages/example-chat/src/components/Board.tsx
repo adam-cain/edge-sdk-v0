@@ -203,7 +203,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
   }, []);
 
   const [brushSettings, setBrushSettings ]= useState<BrushSettings>({
-    color: stringToColor(currentPeerId),
+    color: "#FFFFFF",
     strokeWidth: 5,   // default stroke width
   });
 
@@ -218,7 +218,8 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
     <DrawingCanvas drawings={state.drawings} canvasRef={canvasRef} brushSettings={brushSettings} />
 
     {/* Toolbox for brush/stroke settings */}
-    <Toolbox onSettingsChange={setBrushSettings} initialColor={stringToColor(currentPeerId)}/>
+    {/* <Toolbox onSettingsChange={setBrushSettings} initialColor={stringToColor(currentPeerId)}/> */}
+    <Toolbox onSettingsChange={setBrushSettings} initialColor={"#FFFFFF"}/>
 
     {/* Render Cursors */}
     {state.cursors
