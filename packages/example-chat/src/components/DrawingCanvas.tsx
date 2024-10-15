@@ -1,14 +1,19 @@
 import { useEffect } from "react";
 import { Drawing } from "../reducers/jam";
-import stringToColor from "../util/stringToCursor";
+// import stringToColor from "../util/stringToCursor";
+import { BrushSettings } from "./Toolbox";
+
+interface DrawingCanvasProps {
+    drawings: Drawing[];
+    canvasRef: React.RefObject<HTMLCanvasElement>;
+    brushSettings: BrushSettings
+}
 
 const DrawingCanvas = ({
     drawings,
     canvasRef,
-}: {
-    drawings: Drawing[];
-    canvasRef: React.RefObject<HTMLCanvasElement>;
-}) => {
+    brushSettings
+}: DrawingCanvasProps) => {
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -32,8 +37,8 @@ const DrawingCanvas = ({
                     ctx.lineTo(canvasX, canvasY);
                 }
             });
-            ctx.strokeStyle = stringToColor(drawing.peerId);
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = brushSettings.color;
+            ctx.lineWidth = brushSettings.strokeWidth;
             ctx.stroke();
         });
     }, [drawings, canvasRef]);

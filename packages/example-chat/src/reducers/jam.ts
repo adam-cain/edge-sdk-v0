@@ -13,6 +13,8 @@ export type DrawingPoint = {
 
 export type Drawing = {
   peerId: string;
+  color: string;
+  stroke: number;
   points: DrawingPoint[];
 };
 
@@ -44,6 +46,10 @@ interface UpdateCursorAction extends BaseJamAction {
 
 interface StartDrawingAction extends BaseJamAction {
   type: "START_DRAWING";
+  payload: {
+    color: string;
+    stroke: number;
+  }
 }
 
 interface AddDrawingPointAction extends BaseJamAction {
@@ -126,6 +132,8 @@ export function jamReducer(state: JamState = initialState, action: JamAction): J
           {
             peerId: action.peerId,
             points: [],
+            color: action.payload.color,
+            stroke: action.payload.stroke
           },
           ...state.drawings,
         ],
