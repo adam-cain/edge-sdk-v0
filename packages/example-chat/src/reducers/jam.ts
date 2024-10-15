@@ -1,27 +1,25 @@
 import { EdgeAction } from "@turbo-ing/edge-v0";
 
-export type Message = {
-  message: string;
-  peerId: string;
-};
-
 export type CursorPosition = {
   x: number;
   y: number,
   peerId: string;
 };
 
+export type DrawingPoint = {
+  x: number;
+  y: number;
+};
+
+export type Drawing = {
+  peerId: string;
+  points: DrawingPoint[];
+};
+
 export interface JamState {
-  messages: Message[];
   cursors: CursorPosition[];
   names: { [peerId: string]: string };
-}
-
-interface ReceiveMessageAction extends EdgeAction<JamState> {
-  type: 'MESSAGE';
-  payload: {
-    message: string;
-  };
+  drawings: Drawing[];
 }
 
 interface SetRecipientNameAction extends EdgeAction<JamState> {
@@ -39,12 +37,30 @@ interface UpdateCursorAction extends EdgeAction<JamState> {
   };
 }
 
-export type JamAction = ReceiveMessageAction | SetRecipientNameAction | UpdateCursorAction;
+interface StartDrawingAction extends EdgeAction<JamState> {
+  type: 'START_DRAWING';
+}
+
+interface AddDrawingPointAction extends EdgeAction<JamState> {
+  type: 'ADD_DRAWING_POINT';
+  payload: DrawingPoint;
+}
+
+interface StopDrawingAction extends EdgeAction<JamState> {
+  type: 'STOP_DRAWING';
+}
+
+export type JamAction = 
+  | SetRecipientNameAction 
+  | UpdateCursorAction
+  | StartDrawingAction
+  | AddDrawingPointAction
+  | StopDrawingAction;
 
 export const initialState: JamState = {
-  messages: [],
   cursors: [],
   names: {},
+  drawings: []
 };
 
 export function jamReducer(
@@ -54,22 +70,6 @@ export function jamReducer(
   if (!action.peerId) return state
 
   switch (action.type) {
-    case 'MESSAGE': {
-      const { message } = action.payload;
-
-      setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 200)
-
-      return {
-        ...state,
-        messages: [
-          ...state.messages,
-          {
-            message,
-            peerId: action.peerId,
-          },
-        ],
-      };
-    }
     case 'SET_RECIPIENT_NAME': {
       const { name } = action.payload;
       return {
@@ -99,7 +99,6 @@ export function jamReducer(
           cursors: updatedCursors,
         };
       } else {
-        // Add new cursor
         return {
           ...state,
           cursors: [
@@ -112,6 +111,43 @@ export function jamReducer(
           ],
         };
       }
+    }
+    case 'START_DRAWING': {
+      // Initialize a new drawing for the peer
+      return {
+        ...state,
+        drawings: [
+          ...state.drawings,
+          {
+            peerId: action.peerId,
+            points: [],
+          },
+        ],
+      };
+    }
+    case 'ADD_DRAWING_POINT': {
+      const { x, y } = action.payload;
+      const drawingIndex = state.drawings.findIndex(
+        (drawing) => drawing.peerId === action.peerId
+      );
+
+      if (drawingIndex !== -1) {
+        const updatedDrawings = [...state.drawings];
+        updatedDrawings[drawingIndex] = {
+          ...updatedDrawings[drawingIndex],
+          points: [...updatedDrawings[drawingIndex].points, { x, y }],
+        };
+        return {
+          ...state,
+          drawings: updatedDrawings,
+        };
+      } else {
+        return state;
+      }
+    }
+    case 'STOP_DRAWING': {
+      // Optional: logic to stop drawing or finalize a drawing
+      return state;
     }
     default:
       return state;

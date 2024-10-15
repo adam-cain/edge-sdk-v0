@@ -11,16 +11,17 @@ import debounce from 'lodash.debounce';
 function App() {
   const [name, setName] = useState("");
   const [roomIdCommitted, setRoomIdCommitted] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(true)
+  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isDrawing, setIsDrawing] = useState(false);  // Track whether the user is drawing
 
-  const boardRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
 
   const [state, dispatch, connected] = useEdgeReducerV0(
     jamReducer,
     initialState,
     {
       topic: roomIdCommitted,
-      // onDispatch: (action) => console.log('onDispatch:', action),
       onPayload: (state) => console.log('onPayload:', state),
       onReset: (state) => console.log('onReset:', state),
     }
@@ -52,28 +53,83 @@ function App() {
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
       const { clientX: x, clientY: y } = event;
-      const rect = boardRef.current?.getBoundingClientRect(); // Get the bounding box of the div
+      const rect = boardRef.current?.getBoundingClientRect();
 
       if (rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-        const relativeX = x - rect.left;
-        const relativeY = y - rect.top;
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        const relativeX = x - centerX;
+        const relativeY = y - centerY;
 
         debouncedDispatchCursor(relativeX, relativeY);
+
+        if (isDrawing) {
+          // Dispatch drawing point while mouse is moving and drawing is active
+          dispatch({
+            type: 'ADD_DRAWING_POINT',
+            payload: { x: relativeX, y: relativeY },
+          });
+        }
       }
+    };
+
+    const handleMouseDown = () => {
+      setIsDrawing(true);  // Start drawing
+      dispatch({
+        type: 'START_DRAWING',
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsDrawing(false);  // Stop drawing
+      dispatch({
+        type: 'STOP_DRAWING',
+      });
     };
 
     const divElement = boardRef.current;
     if (divElement) {
       divElement.addEventListener('mousemove', handleMouseMove);
+      divElement.addEventListener('mousedown', handleMouseDown);
+      divElement.addEventListener('mouseup', handleMouseUp);
     }
 
     return () => {
       if (divElement) {
         divElement.removeEventListener('mousemove', handleMouseMove);
+        divElement.removeEventListener('mousedown', handleMouseDown);
+        divElement.removeEventListener('mouseup', handleMouseUp);
       }
       debouncedDispatchCursor.cancel();
     };
-  }, [debouncedDispatchCursor]);
+  }, [debouncedDispatchCursor, isDrawing, dispatch, turboEdge?.node.peerId]);
+
+  // Render drawings on the canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas
+
+    // Iterate through each peer's drawings and render them
+    state.drawings.forEach(drawing => {
+      ctx.beginPath();
+      drawing.points.forEach((point, index) => {
+        if (index === 0) {
+          ctx.moveTo(canvas.width / 2 + point.x, canvas.height / 2 + point.y);
+        } else {
+          ctx.lineTo(canvas.width / 2 + point.x, canvas.height / 2 + point.y);
+        }
+      });
+      ctx.strokeStyle = stringToColor(drawing.peerId);  // Color based on peerId
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+  }, [state.drawings]);
 
   return (
     <>
@@ -110,13 +166,21 @@ function App() {
                   ref={boardRef}
                   style={{ position: 'relative', width: '100%', height: '100%' }} 
                 >
+                  {/* Canvas for drawings */}
+                  <canvas
+                    ref={canvasRef}
+                    width={window.innerWidth}
+                    height={window.innerHeight}
+                    style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
+                  ></canvas>
+
                   {state.cursors.map((cursor, i) => (
                     <div
                       key={i}
                       style={{
                         position: 'absolute',
-                        left: cursor.x,
-                        top: cursor.y,
+                        left: `calc(50% + ${cursor.x}px)`,
+                        top: `calc(50% + ${cursor.y}px)`,
                         pointerEvents: 'none',
                         width: '30px',
                         height: '30px',
@@ -126,10 +190,10 @@ function App() {
                       <span>{state.names[cursor.peerId] || cursor.peerId}</span>
                     </div>
                   ))}
-                  </div>) : (
+                </div>) : (
                   <div className="text-lg text-background-color mt-4">Connecting...</div>
               ))}
-                </div>
+            </div>
 
         {/* Footer */}
             <div className="container mx-auto mt-4 text-xs text-gray-200 flex-none pb-2">
@@ -157,7 +221,7 @@ function App() {
           closeModal={() => setIsModalOpen(false)}
         />
       </>
-      );
+  );
 }
 
-      export default App;
+export default App;
