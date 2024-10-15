@@ -29,6 +29,7 @@ function App() {
   });
 
   const turboEdge = useTurboEdgeV0();
+  const currentPeerId = turboEdge?.node.peerId?.toString() || "";
 
   useEffect(() => {
     drawingsRef.current = state.drawings;
@@ -265,7 +266,8 @@ function App() {
                 canvasRef={canvasRef}
                 cursors={state.cursors}
                 names={state.names}
-                drawings={state.drawings}
+                drawings={state.drawings} 
+                currentPeerId={currentPeerId}                
               />
             ) : (
               <div className="flex items-center justify-center h-full text-xl font-semibold text-background-color">

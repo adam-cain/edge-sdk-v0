@@ -120,11 +120,6 @@ export function jamReducer(state: JamState = initialState, action: JamAction): J
       }
     }
     case "START_DRAWING": {
-      // Initialize a new drawing for the peer
-      // Prevent multiple drawings for the same peer
-      // if (state.drawings.find((d) => d.peerId === action.peerId)) {
-      //   return state;
-      // }
       return {
         ...state,
         drawings: [
