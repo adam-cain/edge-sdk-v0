@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useEdgeReducerV0, useTurboEdgeV0 } from "@turbo-ing/edge-v0";
-import { jamReducer, initialState, JamState, JamAction } from "./reducers/jam";
+import { jamReducer, initialState, JamState, JamAction, Drawing } from "./reducers/jam";
 import RoomModal from "./components/RoomModal";
 import stringToColor from "./util/stringToCursor";
 // import debounce from "lodash.debounce";
@@ -16,6 +16,7 @@ function App() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
+  const drawingsRef = useRef<Drawing[]>(initialState.drawings);
 
   const [state, dispatch, connected] = useEdgeReducerV0<
     JamState,
@@ -24,9 +25,14 @@ function App() {
     topic: roomIdCommitted,
     onPayload: (state) => console.log("onPayload:", state),
     onReset: (state) => console.log("onReset:", state),
+    // onDispatch: (state) => console.log("onDispatch:", state),
   });
 
   const turboEdge = useTurboEdgeV0();
+
+  useEffect(() => {
+    drawingsRef.current = state.drawings;
+  }, [state.drawings]);
 
   // Responsive Canvas Sizing
   const updateCanvasSize = useCallback(() => {
@@ -36,7 +42,7 @@ function App() {
       canvas.width = board.clientWidth;
       canvas.height = board.clientHeight;
     }
-  }, []);
+  }, [canvasRef.current, boardRef.current]);
 
   useEffect(() => {
     updateCanvasSize();
@@ -76,6 +82,7 @@ function App() {
 
     const handleMove = (x: number, y: number) => {
       // debouncedDispatchCursor(x, y, currentPeerId);
+
 
       dispatch({
         type: "UPDATE_CURSOR",
@@ -188,22 +195,25 @@ function App() {
       }
       // debouncedDispatchCursor.cancel();
     };
-  // }, [debouncedDispatchCursor, isDrawing, dispatch, turboEdge?.node.peerId]);
-  }, [ isDrawing, dispatch, turboEdge?.node.peerId]);
+    // }, [debouncedDispatchCursor, isDrawing, dispatch, turboEdge?.node.peerId]);
+  }, [isDrawing, dispatch, turboEdge?.node.peerId]);
 
   // Canvas Rendering Optimization with requestAnimationFrame
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-  
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-  
+
     let animationFrameId: number;
-  
+
     const render = () => {
+      // Access the latest drawings from the ref
+      const drawings = drawingsRef.current;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      state.drawings.forEach((drawing) => {
+      drawings.forEach((drawing) => {
         if (drawing.points.length < 2) return;
         ctx.beginPath();
         drawing.points.forEach((point, index) => {
@@ -221,13 +231,13 @@ function App() {
       });
       animationFrameId = requestAnimationFrame(render);
     };
-  
+
     render(); // Start the rendering loop
-  
+
     return () => {
       cancelAnimationFrame(animationFrameId); // Correctly cancel the animation frame using the ID
     };
-  }, [state.drawings]);
+  }, []);;
 
   // Reset state on disconnect
   useEffect(() => {
@@ -258,12 +268,12 @@ function App() {
                 drawings={state.drawings}
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-lg text-gray-600">
+              <div className="flex items-center justify-center h-full text-xl font-semibold text-background-color">
                 Connecting...
               </div>
             )
           ) : (
-            <div className="flex items-center justify-center h-full text-lg text-gray-600">
+            <div className="flex items-center justify-center h-full text-xl font-semibold text-background-color">
               Please join a room.
             </div>
           )}
