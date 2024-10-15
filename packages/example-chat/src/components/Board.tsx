@@ -9,10 +9,9 @@ interface BoardProps{
   dispatch: (action: JamAction) => Promise<void>,
   state: JamState,
   currentPeerId: string,
-  roomId: string,
 }
 
-function Board({ dispatch, state, currentPeerId, roomId }: BoardProps) {
+function Board({ dispatch, state, currentPeerId }: BoardProps) {
   const [isDrawing, setIsDrawing] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
@@ -204,7 +203,7 @@ function Board({ dispatch, state, currentPeerId, roomId }: BoardProps) {
   }, []);
 
   const [brushSettings, setBrushSettings ]= useState<BrushSettings>({
-    color: stringToColor(currentPeerId), // default black color
+    color: stringToColor(currentPeerId),
     strokeWidth: 5,   // default stroke width
   });
 
@@ -218,7 +217,7 @@ function Board({ dispatch, state, currentPeerId, roomId }: BoardProps) {
     {/* Canvas for drawings */}
     <DrawingCanvas drawings={state.drawings} canvasRef={canvasRef} brushSettings={brushSettings} />
 
-    {/* Toolbos for brush/stroke settings */}
+    {/* Toolbox for brush/stroke settings */}
     <Toolbox onSettingsChange={setBrushSettings} initialColor={stringToColor(currentPeerId)}/>
 
     {/* Render Cursors */}

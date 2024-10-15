@@ -59,7 +59,6 @@ function App() {
                 dispatch={dispatch}
                 state={state}
                 currentPeerId={currentPeerId}
-                roomId={roomIdCommitted}
               />
             ) : (
               <div className="flex items-center justify-center h-full text-xl font-semibold text-background-color">
