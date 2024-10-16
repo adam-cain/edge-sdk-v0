@@ -26,6 +26,7 @@ const Cursor = React.memo(
         name: string;
     }) => (
         <div
+            className=" z-40"
             style={{
                 position: "absolute",
                 left: `${cursor.x}px`,

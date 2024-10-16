@@ -42,13 +42,14 @@ const Toolbox = ({ onSettingsChange, initialColor }: ToolboxProps) => {
                 type="color"
                 value={color}
                 onChange={handleColorChange}
-                className="rounded-full aspect-square size-16"
+                className="rounded-full aspect-square size-16 border"
                 style={{
                     backgroundColor: color,  // Set the background color to reflect selected color
                     border: "none",
                     appearance: "none",  // Remove the default color picker appearance
                     cursor: "pointer",   // Add pointer cursor for better UX
-                    outline: "none"
+                    outline: "none",
+                    borderRadius: "9999px"
                 }}
             />
 
