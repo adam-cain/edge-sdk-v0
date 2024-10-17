@@ -1,8 +1,8 @@
 import TurboLogo from "../assets/turbo-logo.svg";
 
 const Header = ({ onNewRoom }: { onNewRoom: () => void }) => (
-    <div className="container mx-auto mb-5 flex justify-between pt-4">
-        <div className="flex items-center justify-center mb-2">
+    <div className="container mx-auto my-4 flex justify-between">
+        <div className="flex items-center justify-center">
             <div>
                 <img src={TurboLogo} width={190} alt="Turbo Logo" />
             </div>

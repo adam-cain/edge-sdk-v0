@@ -3,7 +3,7 @@ import DrawingCanvas from "./DrawingCanvas";
 import Toolbox, { BrushSettings } from "./Toolbox";
 import { useEffect, useRef, useCallback, useState } from "react";
 import { JamAction, JamState } from "../reducers/jam";
-// import stringToColor from "../util/stringToCursor";
+import stringToColor from "../util/stringToCursor";
 
 interface BoardProps {
   dispatch: (action: JamAction) => Promise<void>;
@@ -19,7 +19,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
 
   // Ref to keep track of the latest brush settings
   const [brushSettings, setBrushSettings] = useState<BrushSettings>({
-    color: "#FFFFFF",
+    color: stringToColor(currentPeerId),
     strokeWidth: 5, // default stroke width
   });
 
@@ -185,8 +185,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
       />
 
       {/* Toolbox for brush/stroke settings */}
-      {/* <Toolbox onSettingsChange={setBrushSettings} initialColor={stringToColor(currentPeerId)}/> */}
-      <Toolbox onSettingsChange={setBrushSettings} initialColor={"#FFFFFF"} />
+      <Toolbox onSettingsChange={setBrushSettings} initialColor={stringToColor(currentPeerId)} />
 
       {/* Render Cursors */}
       {state.cursors

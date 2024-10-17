@@ -3,8 +3,8 @@ import { useEdgeReducerV0, useTurboEdgeV0 } from "@turbo-ing/edge-v0";
 import { jamReducer, initialState, JamState, JamAction } from "./reducers/jam";
 import RoomModal from "./components/RoomModal";
 import Header from "./components/Header";
-import Footer from "./components/Footer";
 import Board from "./components/Board";
+import RoomInfo from "./components/RoomInfo";
 
 function App() {
   const [name, setName] = useState("");
@@ -72,9 +72,9 @@ function App() {
           )}
         </div>
 
-        {/* Footer */}
+
         {turboEdge?.node.peerId && (
-          <Footer
+          <RoomInfo
             peerId={turboEdge.node.peerId.toString()}
             status={turboEdge.node.status}
             roomId={roomIdCommitted}
