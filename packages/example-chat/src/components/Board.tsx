@@ -60,10 +60,8 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
     }
   };
 
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    const { clientX, clientY } = event;
+  const handleMoveEvent = (clientX: number, clientY: number) => {
     const rect = boardRef.current?.getBoundingClientRect();
-
     if (
       rect &&
       clientX >= rect.left &&
@@ -76,83 +74,52 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
       handleMove(relativeX, relativeY);
     }
   };
-
+  
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    handleMoveEvent(event.clientX, event.clientY);
+  };
+  
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
     const touch = event.touches[0];
-    const { clientX, clientY } = touch;
-    const rect = boardRef.current?.getBoundingClientRect();
+    handleMoveEvent(touch.clientX, touch.clientY);
+  };
 
-    if (
-      rect &&
-      clientX >= rect.left &&
-      clientX <= rect.right &&
-      clientY >= rect.top &&
-      clientY <= rect.bottom
-    ) {
+  const startDrawing = (clientX: number, clientY: number) => {
+    setIsDrawing(true);
+    const rect = boardRef.current?.getBoundingClientRect();
+    if (rect) {
       const relativeX = clientX - rect.left;
       const relativeY = clientY - rect.top;
+      dispatch({
+        type: "START_DRAWING",
+        peerId: currentPeerId,
+        payload: {
+          color: brushSettings.color,
+          stroke: brushSettings.strokeWidth,
+        },
+      });
       handleMove(relativeX, relativeY);
     }
   };
-
+  
+  const stopDrawing = () => {
+    setIsDrawing(false);
+    dispatch({ type: "STOP_DRAWING", peerId: currentPeerId });
+  };
+  
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    event.preventDefault(); // Prevent default behavior like text selection
-    setIsDrawing(true);
-    const { clientX, clientY } = event;
-    const rect = boardRef.current?.getBoundingClientRect();
-
-    if (rect) {
-      const relativeX = clientX - rect.left;
-      const relativeY = clientY - rect.top;
-      dispatch({
-        type: "START_DRAWING",
-        peerId: currentPeerId,
-        payload: {
-          color: brushSettings.color,
-          stroke: brushSettings.strokeWidth,
-        },
-      });
-      handleMove(relativeX, relativeY); // Capture the initial point
-    }
+    event.preventDefault();
+    startDrawing(event.clientX, event.clientY);
   };
-
-  const handleMouseUp = () => {
-    setIsDrawing(false);
-    dispatch({
-      type: "STOP_DRAWING",
-      peerId: currentPeerId,
-    });
-  };
-
+  
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    event.preventDefault(); // Prevent default touch behaviors
-    setIsDrawing(true);
+    event.preventDefault();
     const touch = event.touches[0];
-    const { clientX, clientY } = touch;
-    const rect = boardRef.current?.getBoundingClientRect();
-
-    if (rect) {
-      const relativeX = clientX - rect.left;
-      const relativeY = clientY - rect.top;
-      dispatch({
-        type: "START_DRAWING",
-        peerId: currentPeerId,
-        payload: {
-          color: brushSettings.color,
-          stroke: brushSettings.strokeWidth,
-        },
-      });
-      handleMove(relativeX, relativeY); // Capture the initial point
-    }
+    startDrawing(touch.clientX, touch.clientY);
   };
-
-  const handleTouchEnd = () => {
-    setIsDrawing(false);
-    dispatch({
-      type: "STOP_DRAWING",
-      peerId: currentPeerId,
-    });
-  };
+  
+  const handleMouseUp = () => stopDrawing();
+  const handleTouchEnd = () => stopDrawing();
 
   // Canvas Rendering Optimization with requestAnimationFrame
   useEffect(() => {
