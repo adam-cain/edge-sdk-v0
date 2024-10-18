@@ -1,28 +1,77 @@
 import { EdgeAction } from "@turbo-ing/edge-v0";
+import {updateCursor, addOrUpdateDrawing, removeDrawing} from "../util/reducerUtil"
 
-export type CursorPosition = {
+export const shapeTypes = ['freehand', 'rectangle', 'circle', 'line', 'text'] as const;
+export type ShapeType = typeof shapeTypes[number];
+
+export type Point = {
   x: number;
   y: number;
+};
+
+export interface StartEnd {
+  startPoint: Point;
+  endPoint: Point;
+}
+
+// Base interface for shape properties
+interface BaseShapeProperties {
+  type: ShapeType;
+}
+
+interface FreehandShapeProperties extends BaseShapeProperties {
+  type: 'freehand';
+  points: Point[];
+}
+
+interface TextShapeProperties extends BaseShapeProperties {
+  type: 'text';
+  position: Point;
+  text: string;
+  fontSize: number;
+}
+
+interface RectangleShapeProperties extends BaseShapeProperties, StartEnd {
+  type: 'rectangle';
+}
+
+interface CircleShapeProperties extends BaseShapeProperties, StartEnd {
+  type: 'circle';
+}
+
+interface LineShapeProperties extends BaseShapeProperties, StartEnd {
+  type: 'line';
+}
+
+export type ShapeProperties =
+  | FreehandShapeProperties
+  | TextShapeProperties
+  | RectangleShapeProperties
+  | CircleShapeProperties
+  | LineShapeProperties;
+
+export interface CursorPosition extends Point {
   peerId: string;
-};
+}
 
-export type DrawingPoint = {
-  x: number;
-  y: number;
-};
+export type DrawingId = string;
 
-export type Drawing = {
+export interface Drawing {
+  id: DrawingId;
   peerId: string;
   color: string;
   stroke: number;
-  points: DrawingPoint[];
-};
+  properties: ShapeProperties;
+}
 
 export interface JamState {
-  cursors: CursorPosition[];
-  names: { [peerId: string]: string };
-  drawings: Drawing[];
+  cursors: Record<string, CursorPosition>;
+  names: Record<string, string>;
+  activeDrawings: Record<string, Drawing>;
+  completedDrawings: Record<DrawingId, Drawing>;
 }
+
+// Action interfaces
 
 interface BaseJamAction extends EdgeAction<JamState> {
   peerId: string;
@@ -38,27 +87,40 @@ interface SetRecipientNameAction extends BaseJamAction {
 
 interface UpdateCursorAction extends BaseJamAction {
   type: "UPDATE_CURSOR";
-  payload: {
-    x: number;
-    y: number;
-  };
+  payload: Point;
 }
 
 interface StartDrawingAction extends BaseJamAction {
   type: "START_DRAWING";
   payload: {
+    drawingId: DrawingId;
     color: string;
     stroke: number;
-  }
+    properties: ShapeProperties;
+  };
 }
 
-interface AddDrawingPointAction extends BaseJamAction {
+interface UpdateDrawingAction extends BaseJamAction {
+  type: "UPDATE_DRAWING";
+  payload: {
+    drawingId: DrawingId;
+    properties: Partial<ShapeProperties>;
+  };
+}
+
+interface AddPointAction extends BaseJamAction {
   type: "ADD_DRAWING_POINT";
-  payload: DrawingPoint;
+  payload: {
+    drawingId: DrawingId;
+    point: Point;
+  };
 }
 
 interface StopDrawingAction extends BaseJamAction {
   type: "STOP_DRAWING";
+  payload: {
+    drawingId: DrawingId;
+  };
 }
 
 interface ResetStateAction extends BaseJamAction {
@@ -69,120 +131,142 @@ export type JamAction =
   | SetRecipientNameAction
   | UpdateCursorAction
   | StartDrawingAction
-  | AddDrawingPointAction
+  | UpdateDrawingAction
+  | AddPointAction
   | StopDrawingAction
   | ResetStateAction;
 
-export const initialState: JamState = {
-  cursors: [],
-  names: {},
-  drawings: [],
-};
 
-export function jamReducer(state: JamState = initialState, action: JamAction): JamState {
-  if (!action.peerId) return state;
+  export const initialState: JamState = {
+    cursors: {},
+    names: {},
+    activeDrawings: {},
+    completedDrawings: {},
+  };
 
-  switch (action.type) {
-    case "SET_RECIPIENT_NAME": {
-      const { name } = action.payload;
-      return {
-        ...state,
-        names: {
-          ...state.names,
-          [action.peerId]: name,
-        },
-      };
-    }
-    case "UPDATE_CURSOR": {
-      const { x, y } = action.payload;
-      const existingCursorIndex = state.cursors.findIndex(
-        (cursor) => cursor.peerId === action.peerId
-      );
-
-      if (existingCursorIndex !== -1) {
-        // Update existing cursor
-        const updatedCursors = [...state.cursors];
-        updatedCursors[existingCursorIndex] = {
-          ...updatedCursors[existingCursorIndex],
-          x,
-          y,
-        };
+  export function jamReducer(
+    state: JamState = initialState,
+    action: JamAction
+  ): JamState {
+    if (!action.peerId) return state;
+  
+    switch (action.type) {
+      case "SET_RECIPIENT_NAME": {
+        const { name } = action.payload;
         return {
           ...state,
-          cursors: updatedCursors,
-        };
-      } else {
-        return {
-          ...state,
-          cursors: [
-            ...state.cursors,
-            {
-              peerId: action.peerId,
-              x,
-              y,
-            },
-          ],
-        };
-      }
-    }
-    case "START_DRAWING": {
-      return {
-        ...state,
-        drawings: [
-          {
-            peerId: action.peerId,
-            points: [],
-            color: action.payload.color,
-            stroke: action.payload.stroke
+          names: {
+            ...state.names,
+            [action.peerId]: name,
           },
-          ...state.drawings,
-        ],
-      };
-    }
-    case "ADD_DRAWING_POINT": {
-      const { x, y } = action.payload;
-      const drawingIndex = state.drawings.findIndex(
-        (drawing) => drawing.peerId === action.peerId
-      );
-
-      if (drawingIndex !== -1) {
-        const updatedDrawings = [...state.drawings];
-        updatedDrawings[drawingIndex] = {
-          ...updatedDrawings[drawingIndex],
-          points: [...updatedDrawings[drawingIndex].points, { x, y }],
+        };
+      }
+  
+      case "UPDATE_CURSOR": {
+        const position = action.payload;
+        return {
+          ...state,
+          cursors: updateCursor(state.cursors, action.peerId, position),
+        };
+      }
+  
+      case "START_DRAWING": {
+        const { drawingId, color, stroke, properties } = action.payload;
+        const newDrawing: Drawing = {
+          id: drawingId,
+          peerId: action.peerId,
+          color,
+          stroke,
+          properties,
         };
         return {
           ...state,
-          drawings: updatedDrawings,
+          activeDrawings: addOrUpdateDrawing(state.activeDrawings, newDrawing),
         };
-      } else {
-        return state;
       }
-    }
-    case "STOP_DRAWING": {
-      // Remove the drawing if it has no points
-      const drawingIndex = state.drawings.findIndex(
-        (drawing) => drawing.peerId === action.peerId
-      );
-      if (drawingIndex !== -1) {
-        const drawing = state.drawings[drawingIndex];
-        if (drawing.points.length === 0) {
-          // Remove empty drawing
-          const updatedDrawings = state.drawings.filter(
-            (_, index) => index !== drawingIndex
-          );
-          return {
-            ...state,
-            drawings: updatedDrawings,
-          };
+  
+      case "ADD_DRAWING_POINT": {
+        const { drawingId, point } = action.payload;
+        const drawing = state.activeDrawings[drawingId];
+  
+        if (!drawing) {
+          // Drawing not found, ignore action or handle error
+          return state;
         }
+        if (drawing.properties.type !== 'freehand') {
+          // Points can only be added to freehand drawings
+          return state;
+        }
+  
+        const updatedDrawing: Drawing = {
+          ...drawing,
+          properties: {
+            ...drawing.properties,
+            points: [...drawing.properties.points, point],
+          } as FreehandShapeProperties,
+        };
+  
+        return {
+          ...state,
+          activeDrawings: addOrUpdateDrawing(
+            state.activeDrawings,
+            updatedDrawing
+          ),
+        };
       }
-      return state;
+  
+      case "UPDATE_DRAWING": {
+        const { drawingId, properties } = action.payload;
+        const drawing = state.activeDrawings[drawingId];
+  
+        if (!drawing) {
+          // Drawing not found, ignore action or handle error
+          return state;
+        }
+  
+        const updatedDrawing: Drawing = {
+          ...drawing,
+          properties: {
+            ...drawing.properties,
+            ...properties,
+          } as ShapeProperties,
+        };
+  
+        return {
+          ...state,
+          activeDrawings: addOrUpdateDrawing(
+            state.activeDrawings,
+            updatedDrawing
+          ),
+        };
+      }
+  
+      case "STOP_DRAWING": {
+        const { drawingId } = action.payload;
+        const drawing = state.activeDrawings[drawingId];
+  
+        if (!drawing) {
+          // Drawing not found, ignore action or handle error
+          return state;
+        }
+  
+        // Move the drawing from active to completed
+        return {
+          ...state,
+          activeDrawings: removeDrawing(state.activeDrawings, drawingId),
+          completedDrawings: addOrUpdateDrawing(
+            state.completedDrawings,
+            drawing
+          ),
+        };
+      }
+  
+      case "RESET_STATE": {
+        return initialState;
+      }
+  
+      default:
+        return state;
     }
-    case "RESET_STATE": {
-      return initialState;
-    }
-    default:
-      return state;
   }
-}
+  

@@ -1,19 +1,20 @@
 import { useEffect } from "react";
 import { Drawing } from "../reducers/jam";
-// import stringToColor from "../util/stringToCursor";
-import { BrushSettings } from "./Toolbox";
+import { renderDrawing } from "../util/shapeRenderer";
 
 interface DrawingCanvasProps {
     drawings: Drawing[];
     canvasRef: React.RefObject<HTMLCanvasElement>;
-    brushSettings: BrushSettings
 }
 
 const DrawingCanvas = ({
     drawings,
     canvasRef,
-    brushSettings
 }: DrawingCanvasProps) => {
+
+
+    //  Canvas Rendering Optimization with requestAnimationFrame
+
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -21,26 +22,25 @@ const DrawingCanvas = ({
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        // Clear the canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Render each drawing
-        drawings.forEach((drawing) => {
-            if (drawing.points.length < 2) return; // Skip if not enough points
-            ctx.beginPath();
-            drawing.points.forEach((point, index) => {
-                const canvasX = point.x;
-                const canvasY = point.y;
-                if (index === 0) {
-                    ctx.moveTo(canvasX, canvasY);
-                } else {
-                    ctx.lineTo(canvasX, canvasY);
-                }
+        let animationFrameId: number;
+
+        const render = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawings.forEach((drawing) => {
+                renderDrawing(drawing, ctx)
             });
-            ctx.strokeStyle = brushSettings.color;
-            ctx.lineWidth = brushSettings.strokeWidth;
-            ctx.stroke();
-        });
+
+            animationFrameId = requestAnimationFrame(render);
+        }
+
+        render(); // Start the rendering loop
+
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+        };
+
     }, [drawings, canvasRef]);
 
     return (
