@@ -1,5 +1,5 @@
 import { Drawing } from "../types";
-import { Circle, FreeHand, Line, Rectangle } from "./shapes";
+import { Circle, FreeHand, Line, Rectangle, Text } from "./shapes";
 import { Shape } from "./shapes/types";
 
 export function renderDrawing(drawing: Drawing, ctx: CanvasRenderingContext2D) {
@@ -17,10 +17,11 @@ export function renderDrawing(drawing: Drawing, ctx: CanvasRenderingContext2D) {
         case "rectangle":
             shape = new Rectangle()
             break;
+        case "text":
+            shape = new Text()
+            break;
         default:
-            throw Error("Shape not supported")
+            return;
     }
-    if(shape){
         shape.render(ctx,drawing)
-    }
 }

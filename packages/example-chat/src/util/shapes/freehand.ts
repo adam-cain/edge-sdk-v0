@@ -19,7 +19,7 @@ export class FreeHand implements Shape {
             }
         });
         ctx.strokeStyle = drawing.color;
-        ctx.lineWidth = drawing.stroke;
+        ctx.lineWidth = drawing.strokeWidth;
         ctx.stroke();
     }
 }

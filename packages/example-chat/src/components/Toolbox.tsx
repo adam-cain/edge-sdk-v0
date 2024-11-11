@@ -1,51 +1,44 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import ColorPicker from "./ColorPicker";
-import { ShapeType, BrushSettings } from "../types";
+import { ShapeType } from "../types";
+import { useBrushSettings } from "../providers/BrushSettingsProvider";
 
-interface ToolboxProps {
-  onSettingsChange: (settings: BrushSettings) => void;
-  initialColor: string;
-}
+const Toolbox = () => {
+  const { brushSettings, dispatch } = useBrushSettings();
 
-const Toolbox = ({ onSettingsChange, initialColor }: ToolboxProps) => {
-  // Initialize state
-  const [color, setColor] = useState<string>(initialColor);
-  const [strokeColor, setStrokeColor] = useState<string>("#00000000");
-  const [strokeWidth, setStrokeWidth] = useState<number>(5);
-  const [shapeType, setShapeType] = useState<ShapeType>("freehand");
+  // Sync initial color on mount (optional if you want to keep initial color sync)
+  useEffect(() => {
+    dispatch({ type: "SET_COLOR", color: brushSettings.color });
+  }, [brushSettings.color]);
 
   // Handle color change
-  // const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const newColor = e.target.value;
-  //   setColor(newColor);
-  //   onSettingsChange({ color: newColor, strokeWidth, shapeType });
-  // };
+  const handleColorChange = (newColor: string) => {
+    dispatch({ type: "SET_COLOR", color: newColor });
+  };
+
+  // Handle stroke color change
+  const handleStrokeColorChange = (newStrokeColor: string) => {
+    dispatch({ type: "SET_STROKE_COLOR", strokeColor: newStrokeColor });
+  };
 
   // Handle stroke width change
   const handleStrokeWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newStrokeWidth = parseInt(e.target.value, 10);
-    setStrokeWidth(newStrokeWidth);
-    onSettingsChange({ color, strokeWidth: newStrokeWidth, shapeType });
+    dispatch({ type: "SET_STROKE_WIDTH", strokeWidth: newStrokeWidth });
   };
 
   // Handle shape type change
   const handleShapeTypeChange = (type: ShapeType) => {
-    setShapeType(type);
-    onSettingsChange({ color, strokeWidth, shapeType: type });
+    dispatch({ type: "SET_SHAPE_TYPE", shapeType: type });
   };
-
-  // Sync initial color on mount
-  useEffect(() => {
-    setColor(initialColor);
-    onSettingsChange({ color: initialColor, strokeWidth, shapeType });
-  }, [initialColor]);
 
   return (
     <div className="z-50 absolute right-4 top-4 border bg-white flex flex-col p-2 items-center rounded w-32 gap-2">
-        Fill Color
-    <ColorPicker color={color} updateColor={setColor} ></ColorPicker>
-        Stroke Color
-    <ColorPicker color={strokeColor} updateColor={setStrokeColor}></ColorPicker>
+      Fill Color
+      <ColorPicker color={brushSettings.color} updateColor={handleColorChange} />
+
+      Stroke Color
+      <ColorPicker color={brushSettings.strokeColor} updateColor={handleStrokeColorChange} />
 
       {/* Stroke Width Selector */}
       <label htmlFor="strokeWidth">Width</label>
@@ -55,11 +48,11 @@ const Toolbox = ({ onSettingsChange, initialColor }: ToolboxProps) => {
           type="range"
           min="1"
           max="32"
-          value={strokeWidth}
+          value={brushSettings.strokeWidth}
           onChange={handleStrokeWidthChange}
           className="flex-shrink-0 max-w-16"
         />
-        <span className="whitespace-nowrap select-none">{`${strokeWidth}pt`}</span>
+        <span className="whitespace-nowrap select-none">{`${brushSettings.strokeWidth}pt`}</span>
       </div>
 
       <label htmlFor="shapeType">Shape</label>
@@ -69,13 +62,12 @@ const Toolbox = ({ onSettingsChange, initialColor }: ToolboxProps) => {
             key={type}
             onClick={() => handleShapeTypeChange(type as ShapeType)}
             className={`p-3 rounded aspect-square ${
-              shapeType === type
-                ? " bg-background-color text-white"
+              brushSettings.shapeType === type
+                ? "bg-background-color text-white"
                 : "bg-gray-200"
             }`}
             title={type.charAt(0).toUpperCase() + type.slice(1)}
           >
-            {/* Prefer icons fro each type here */}
             {type.charAt(0).toUpperCase()}
           </button>
         ))}

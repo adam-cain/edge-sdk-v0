@@ -25,7 +25,8 @@ export interface StartDrawingAction extends BaseJamAction {
   payload: {
     drawingId: DrawingId;
     color: string;
-    stroke: number;
+    strokeColor :string, 
+    strokeWidth: number;
     properties: ShapeProperties;
   };
 }

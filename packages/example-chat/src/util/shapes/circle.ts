@@ -25,8 +25,10 @@ export class Circle implements Shape {
         // Draw the circle
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = drawing.color;
-        ctx.lineWidth = drawing.stroke;
-        ctx.stroke();
+        ctx.strokeStyle = drawing.strokeColor;
+        ctx.lineWidth = drawing.strokeWidth;
+        ctx.fillStyle = drawing.color;  // Set the fill color
+        ctx.fill();                     // Fill the circle
+        ctx.stroke();                   // Outline the circle
     }
 }

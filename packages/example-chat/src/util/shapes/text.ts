@@ -8,7 +8,7 @@ export class Text implements Shape {
         }
 
         const { position, text, fontSize } = drawing.properties;
-        ctx.font = `${fontSize}px Arial`;
+        ctx.font = `${fontSize*4}px Arial`;
         ctx.fillText(text, position.x, position.y);
     }
 }

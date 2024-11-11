@@ -17,7 +17,7 @@ export class Line implements Shape {
         ctx.lineTo(endX, endY);
 
         ctx.strokeStyle = drawing.color;
-        ctx.lineWidth = drawing.stroke;
+        ctx.lineWidth = drawing.strokeWidth;
         ctx.stroke();
     }
 }

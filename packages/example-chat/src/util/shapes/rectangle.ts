@@ -20,8 +20,10 @@ export class Rectangle implements Shape {
         // Draw the rectangle
         ctx.beginPath();
         ctx.rect(startPoint.x, startPoint.y, width, height);
-        ctx.strokeStyle = drawing.color;
-        ctx.lineWidth = drawing.stroke;
-        ctx.stroke();
+        ctx.fillStyle = drawing.color;  // Set the fill color
+        ctx.fill();                     // Fill the rectangle
+        ctx.strokeStyle = drawing.strokeColor;
+        ctx.lineWidth = drawing.strokeWidth;
+        ctx.stroke();                   // Outline the rectangle
     }
 }

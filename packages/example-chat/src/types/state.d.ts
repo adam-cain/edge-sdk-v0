@@ -1,4 +1,4 @@
-import { ShapeProperties } from './index';
+import { ShapeProperties, ShapeType } from './index';
 
 export type DrawingId = string;
 
@@ -12,7 +12,8 @@ export interface Drawing {
   id: DrawingId;
   peerId: string;
   color: string;
-  stroke: number;
+  strokeColor: string;
+  strokeWidth: number;
   properties: ShapeProperties;
 }
 
@@ -25,6 +26,7 @@ export interface JamState {
 
 export interface BrushSettings {
     color: string;
+    strokeColor: string;
     strokeWidth: number;
     shapeType: ShapeType;
 }

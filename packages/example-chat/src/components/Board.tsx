@@ -1,10 +1,9 @@
 import Cursor from "./Cursor";
 import DrawingCanvas from "./DrawingCanvas";
 import Toolbox from "./Toolbox";
-import { BrushSettings } from "../types";
 import { useEffect, useRef, useCallback, useState } from "react";
 import { DrawingId, JamAction, JamState, ShapeProperties } from "../types";
-import stringToColor from "../util/stringToCursor";
+import { useBrushSettings, BrushSettingsProvider } from "../providers/BrushSettingsProvider";
 
 interface BoardProps {
   dispatch: (action: JamAction) => Promise<void>;
@@ -13,24 +12,12 @@ interface BoardProps {
 }
 
 function Board({ dispatch, state, currentPeerId }: BoardProps) {
+  const { brushSettings } = useBrushSettings(); // Use the brush settings from context
   const [isDrawing, setIsDrawing] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
-  // const drawingsRef = useRef(state.drawings);
   const [currentDrawingId, setCurrentDrawingId] = useState<DrawingId | null>(null);
   const drawingIdRef = useRef(0);
-
-
-  // Ref to keep track of the latest brush settings
-  const [brushSettings, setBrushSettings] = useState<BrushSettings>({
-    color: stringToColor(currentPeerId),
-    strokeWidth: 5,
-    shapeType: "freehand"
-  });
-
-  // useEffect(() => {
-  //   drawingsRef.current = state.drawings;
-  // }, [state.drawings]);
 
   // Responsive Canvas Sizing
   const updateCanvasSize = useCallback(() => {
@@ -48,7 +35,6 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
     return () => window.removeEventListener("resize", updateCanvasSize);
   }, [updateCanvasSize]);
 
-
   const handleMove = (x: number, y: number) => {
     dispatch({
       type: "UPDATE_CURSOR",
@@ -57,35 +43,38 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
     });
 
     if (isDrawing && currentDrawingId) {
-      if (brushSettings.shapeType === "freehand") {
-        dispatch({
-          type: "ADD_DRAWING_POINT",
-          payload: {
-            drawingId: currentDrawingId,
-            point: { x, y },
-          },
-          peerId: currentPeerId,
-        });
-      } else if (
-        brushSettings.shapeType === 'rectangle' ||
-        brushSettings.shapeType === 'circle' ||
-        brushSettings.shapeType === 'line'
-      ) {
-        // Update the drawing's endPoint for other shapes
-        dispatch({
-          type: "UPDATE_DRAWING",
-          payload: {
-            drawingId: currentDrawingId,
-            properties: {
-              endPoint: { x, y },
+      switch (brushSettings.shapeType) {
+        case "freehand":
+          dispatch({
+            type: "ADD_DRAWING_POINT",
+            payload: {
+              drawingId: currentDrawingId,
+              point: { x, y },
             },
-          },
-          peerId: currentPeerId,
-        });
+            peerId: currentPeerId,
+          });
+          break;
+
+        case "rectangle":
+        case "circle":
+        case "line":
+          // Update the drawing's endPoint for other shapes
+          dispatch({
+            type: "UPDATE_DRAWING",
+            payload: {
+              drawingId: currentDrawingId,
+              properties: {
+                endPoint: { x, y },
+              },
+            },
+            peerId: currentPeerId,
+          });
+          break;
+        default:
+          break;
       }
     }
   };
-
 
   const handleMoveEvent = (clientX: number, clientY: number) => {
     const rect = boardRef.current?.getBoundingClientRect();
@@ -101,11 +90,11 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
       handleMove(relativeX, relativeY);
     }
   };
-  
+
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     handleMoveEvent(event.clientX, event.clientY);
   };
-  
+
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
     const touch = event.touches[0];
     handleMoveEvent(touch.clientX, touch.clientY);
@@ -114,7 +103,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
   const startDrawing = (clientX: number, clientY: number) => {
     setIsDrawing(true);
     drawingIdRef.current += 1;
-    const drawingId = drawingIdRef.current.toString();
+    const drawingId = `${currentPeerId}-${drawingIdRef.current.toString()}`; // Use peerId as prefix
     setCurrentDrawingId(drawingId);
 
     const rect = boardRef.current?.getBoundingClientRect();
@@ -139,7 +128,16 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
             endPoint: { x: relativeX, y: relativeY },
           };
           break;
-        // Handle 'text' or other shapes if necessary
+        case "text":
+          const text = prompt("Enter Text")
+          if(!text){return;}
+          properties = {
+            type: brushSettings.shapeType,
+            position: { x: relativeX, y: relativeY},
+            fontSize: brushSettings.strokeWidth,
+            text
+          }
+        break;
         default:
           return;
       }
@@ -150,7 +148,8 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
         payload: {
           drawingId,
           color: brushSettings.color,
-          stroke: brushSettings.strokeWidth,
+          strokeColor: brushSettings.strokeColor,
+          strokeWidth: brushSettings.strokeWidth,
           properties,
         },
       });
@@ -168,18 +167,18 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
       setCurrentDrawingId(null);
     }
   };
-  
+
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
     startDrawing(event.clientX, event.clientY);
   };
-  
+
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
     const touch = event.touches[0];
     startDrawing(touch.clientX, touch.clientY);
   };
-  
+
   const handleMouseUp = () => stopDrawing();
   const handleTouchEnd = () => stopDrawing();
 
@@ -211,7 +210,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
       />
 
       {/* Toolbox for brush/stroke settings */}
-      <Toolbox onSettingsChange={setBrushSettings} initialColor={stringToColor(currentPeerId)} />
+      <Toolbox />
 
       {/* Render Cursors */}
       {Object.values(state.cursors)
@@ -227,4 +226,10 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
   );
 }
 
-export default Board;
+export default function BoardWithProvider(props: BoardProps) {
+  return (
+    <BrushSettingsProvider currentPeerId={props.currentPeerId}>
+      <Board {...props} />
+    </BrushSettingsProvider>
+  );
+}
