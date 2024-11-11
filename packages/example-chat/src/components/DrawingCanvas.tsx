@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Drawing } from "../reducers/jam";
+import { Drawing } from "../types";
 import { renderDrawing } from "../util/shapeRenderer";
 
 interface DrawingCanvasProps {

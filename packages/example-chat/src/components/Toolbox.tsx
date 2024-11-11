@@ -15,11 +15,11 @@ const Toolbox = ({ onSettingsChange, initialColor }: ToolboxProps) => {
   const [shapeType, setShapeType] = useState<ShapeType>("freehand");
 
   // Handle color change
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newColor = e.target.value;
-    setColor(newColor);
-    onSettingsChange({ color: newColor, strokeWidth, shapeType });
-  };
+  // const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const newColor = e.target.value;
+  //   setColor(newColor);
+  //   onSettingsChange({ color: newColor, strokeWidth, shapeType });
+  // };
 
   // Handle stroke width change
   const handleStrokeWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {

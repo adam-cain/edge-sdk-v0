@@ -1,5 +1,5 @@
 import React from "react";
-import { CursorPosition } from "../reducers/jam";
+import { CursorPosition } from "../types";
 import stringToColor from "../util/stringToCursor";
 
 interface cursorProps {
