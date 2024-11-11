@@ -1,8 +1,9 @@
 import Cursor from "./Cursor";
 import DrawingCanvas from "./DrawingCanvas";
-import Toolbox, { BrushSettings } from "./Toolbox";
+import Toolbox from "./Toolbox";
+import { BrushSettings } from "../types";
 import { useEffect, useRef, useCallback, useState } from "react";
-import { DrawingId, JamAction, JamState, ShapeProperties } from "../reducers/jam";
+import { DrawingId, JamAction, JamState, ShapeProperties } from "../types";
 import stringToColor from "../util/stringToCursor";
 
 interface BoardProps {
@@ -65,7 +66,11 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
           },
           peerId: currentPeerId,
         });
-      } else {
+      } else if (
+        brushSettings.shapeType === 'rectangle' ||
+        brushSettings.shapeType === 'circle' ||
+        brushSettings.shapeType === 'line'
+      ) {
         // Update the drawing's endPoint for other shapes
         dispatch({
           type: "UPDATE_DRAWING",

@@ -18,7 +18,10 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Type Declarations */
+    "typeRoots": ["src/types", "node_modules/@types"]
   },
-  "include": ["src"]
+  "include": ["src", "src/types"]
 }

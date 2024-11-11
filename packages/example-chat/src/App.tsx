@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useEdgeReducerV0, useTurboEdgeV0 } from "@turbo-ing/edge-v0";
-import { jamReducer, initialState, JamState, JamAction } from "./reducers/jam";
+import { jamReducer, initialState } from "./reducers/jam";
+import { JamState, JamAction } from "./types"
 import RoomModal from "./components/RoomModal";
 import Header from "./components/Header";
 import Board from "./components/Board";
@@ -67,7 +68,15 @@ function App() {
             )
           ) : (
             <div className="flex items-center justify-center h-full text-xl font-semibold text-background-color">
-              Please join a room.
+              Join a
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="border rounded px-3 py-1 hover:shadow-inner transition my-auto border-background-color ml-1 mr-0.5"
+                aria-label="Join a room"
+              >
+                Room
+              </button>
+              .
             </div>
           )}
         </div>
