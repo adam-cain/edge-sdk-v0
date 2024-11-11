@@ -69,7 +69,7 @@ importers:
         specifier: ^5.6.2
         version: 5.6.2
 
-  packages/example-chat:
+  packages/turbo-jam:
     dependencies:
       '@libp2p/interface':
         specifier: ^2.0.1
