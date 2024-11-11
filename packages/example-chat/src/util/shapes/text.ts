@@ -1,4 +1,4 @@
-import { Drawing } from "../../reducers/jam";
+import { Drawing } from "../../types";
 import { Shape } from "./types";
 
 export class Text implements Shape {

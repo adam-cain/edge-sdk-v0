@@ -1,4 +1,4 @@
-import { Drawing } from "../reducers/jam";
+import { Drawing } from "../types";
 import { Circle, FreeHand, Line, Rectangle } from "./shapes";
 import { Shape } from "./shapes/types";
 

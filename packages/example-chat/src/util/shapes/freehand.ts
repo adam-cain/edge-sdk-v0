@@ -1,4 +1,4 @@
-import { Drawing } from "../../reducers/jam";
+import { Drawing } from "../../types";
 import { Shape } from "./types";
 
 export class FreeHand implements Shape {
@@ -21,5 +21,6 @@ export class FreeHand implements Shape {
         ctx.strokeStyle = drawing.color;
         ctx.lineWidth = drawing.stroke;
         ctx.stroke();
+    
     }
 }

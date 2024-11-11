@@ -1,4 +1,4 @@
-import { CursorPosition, Point, Drawing, DrawingId } from "../reducers/jam";
+import { CursorPosition, Point, Drawing, DrawingId } from "../types";
 
 function updateCursor(
     cursors: Record<string, CursorPosition>,
