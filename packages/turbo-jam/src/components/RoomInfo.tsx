@@ -17,7 +17,7 @@ const RoomInfo = ({ peerId, status, roomId, names }: InfoProps) => {
         >
             <img src={Info} alt="room info" />
         </div>
-        {!showInfo ?
+        {showInfo ?
             <div className="z-50 absolute right-14 bottom-4 border bg-white flex flex-col p-2 rounded text-xs">
                 <div className="">
                     Status: {status}

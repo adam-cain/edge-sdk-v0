@@ -7,8 +7,9 @@ export class Text implements Shape {
             throw Error("Expected Text Drawing");
         }
 
-        const { position, text, fontSize } = drawing.properties;
-        ctx.font = `${fontSize*4}px Arial`;
+        const { position, text } = drawing.properties;
+        ctx.font = `${drawing.strokeWidth * 4}px Arial`;
+        ctx.fillStyle = drawing.color;
         ctx.fillText(text, position.x, position.y);
     }
 }

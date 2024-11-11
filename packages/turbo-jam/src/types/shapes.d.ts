@@ -26,7 +26,6 @@ export interface TextShapeProperties extends BaseShapeProperties {
   type: 'text';
   position: Point;
   text: string;
-  fontSize: number;
 }
 
 export interface RectangleShapeProperties extends BaseShapeProperties, StartEnd {

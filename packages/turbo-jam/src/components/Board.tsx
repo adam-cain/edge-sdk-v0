@@ -134,7 +134,6 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
           properties = {
             type: brushSettings.shapeType,
             position: { x: relativeX, y: relativeY},
-            fontSize: brushSettings.strokeWidth,
             text
           }
         break;
@@ -209,9 +208,6 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
         canvasRef={canvasRef}
       />
 
-      {/* Toolbox for brush/stroke settings */}
-      <Toolbox />
-
       {/* Render Cursors */}
       {Object.values(state.cursors)
         .filter((cursor) => cursor.peerId !== currentPeerId) // Filter out user's cursor
@@ -230,6 +226,8 @@ export default function BoardWithProvider(props: BoardProps) {
   return (
     <BrushSettingsProvider currentPeerId={props.currentPeerId}>
       <Board {...props} />
+      {/* Toolbox for brush/stroke settings */}
+      <Toolbox />
     </BrushSettingsProvider>
   );
 }
