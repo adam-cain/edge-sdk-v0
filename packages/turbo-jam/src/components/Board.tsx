@@ -258,7 +258,6 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
       const clientY = event.clientY - rect.top;
 
       const prevScale = scale;
-      const scaleChange = newScale / prevScale;
 
       const originX = (clientX - panOffset.x) / prevScale;
       const originY = (clientY - panOffset.y) / prevScale;
