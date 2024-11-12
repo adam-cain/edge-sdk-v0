@@ -19,9 +19,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
   const [isDrawing, setIsDrawing] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
-  const [currentDrawingId, setCurrentDrawingId] = useState<DrawingId | null>(
-    null
-  );
+  const [currentDrawingId, setCurrentDrawingId] = useState<DrawingId | null>(null);
   const drawingIdRef = useRef(0);
 
   // Pan and Zoom State
@@ -30,6 +28,11 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
   const [isPanning, setIsPanning] = useState(false);
   const panStartRef = useRef<{ x: number; y: number } | null>(null);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
+
+  // Touch Pan and Zoom State
+  const [isPinching, setIsPinching] = useState(false);
+  const lastTouchDistanceRef = useRef<number | null>(null);
+  const lastTouchMidpointRef = useRef<{ x: number; y: number } | null>(null);
 
   // Responsive Canvas Sizing
   const updateCanvasSize = useCallback(() => {
@@ -132,8 +135,60 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
-    const touch = event.touches[0];
-    handleMoveEvent(touch.clientX, touch.clientY);
+    if (isPinching && event.touches.length === 2) {
+      // Handle pinch-to-zoom and panning
+      const touch1 = event.touches[0];
+      const touch2 = event.touches[1];
+      const currentDistance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      );
+      const currentMidpoint = {
+        x: (touch1.clientX + touch2.clientX) / 2,
+        y: (touch1.clientY + touch2.clientY) / 2,
+      };
+
+      const scaleChange = currentDistance / lastTouchDistanceRef.current!;
+      const newScale = scale * scaleChange;
+
+      // Limit scale
+      const limitedNewScale = Math.max(0.1, Math.min(newScale, 10));
+
+      // Adjust panOffset to keep midpoint stationary
+      const rect = boardRef.current?.getBoundingClientRect();
+      if (rect) {
+        const prevScale = scale;
+
+        const clientX = currentMidpoint.x - rect.left;
+        const clientY = currentMidpoint.y - rect.top;
+
+        const originX = (clientX - panOffset.x) / prevScale;
+        const originY = (clientY - panOffset.y) / prevScale;
+
+        const newPanOffsetX = clientX - originX * limitedNewScale;
+        const newPanOffsetY = clientY - originY * limitedNewScale;
+
+        // Update panOffset based on movement of the midpoint
+        const deltaX = currentMidpoint.x - lastTouchMidpointRef.current!.x;
+        const deltaY = currentMidpoint.y - lastTouchMidpointRef.current!.y;
+
+        setPanOffset((prevPanOffset) => ({
+          x: newPanOffsetX + deltaX,
+          y: newPanOffsetY + deltaY,
+        }));
+        setScale(limitedNewScale);
+      } else {
+        setScale(limitedNewScale);
+      }
+
+      // Update last distance and midpoint
+      lastTouchDistanceRef.current = currentDistance;
+      lastTouchMidpointRef.current = currentMidpoint;
+    } else if (event.touches.length === 1 && isDrawing) {
+      // Handle drawing
+      const touch = event.touches[0];
+      handleMoveEvent(touch.clientX, touch.clientY);
+    }
   };
 
   const startDrawing = (clientX: number, clientY: number) => {
@@ -217,8 +272,25 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const touch = event.touches[0];
-    startDrawing(touch.clientX, touch.clientY);
+    if (event.touches.length === 1 && !isPinching) {
+      const touch = event.touches[0];
+      startDrawing(touch.clientX, touch.clientY);
+    } else if (event.touches.length === 2) {
+      setIsPinching(true);
+      // Calculate initial distance and midpoint
+      const touch1 = event.touches[0];
+      const touch2 = event.touches[1];
+      const distance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      );
+      lastTouchDistanceRef.current = distance;
+      const midpoint = {
+        x: (touch1.clientX + touch2.clientX) / 2,
+        y: (touch1.clientY + touch2.clientY) / 2,
+      };
+      lastTouchMidpointRef.current = midpoint;
+    }
   };
 
   const handleMouseUp = () => {
@@ -230,7 +302,16 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
     }
   };
 
-  const handleTouchEnd = () => stopDrawing();
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (event.touches.length < 2) {
+      setIsPinching(false);
+      lastTouchDistanceRef.current = null;
+      lastTouchMidpointRef.current = null;
+    }
+    if (event.touches.length === 0) {
+      stopDrawing();
+    }
+  };
 
   const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
     event.preventDefault();

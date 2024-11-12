@@ -1,77 +1,133 @@
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import ColorPicker from "./ColorPicker";
 import { ShapeType } from "../types";
 import { useBrushSettings } from "../providers/BrushSettingsProvider";
+import {
+  CircleIcon,
+  SquareIcon,
+  FreeDrawIcon,
+  LineDrawIcon,
+  TextIcon,
+  CollapseIcon,
+} from "./Icons";
+import React from "react";
 
 const Toolbox = () => {
   const { brushSettings, dispatch } = useBrushSettings();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [height, setHeight] = useState("auto");
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  // Sync initial color on mount (optional if you want to keep initial color sync)
   useEffect(() => {
     dispatch({ type: "SET_COLOR", color: brushSettings.color });
   }, [brushSettings.color]);
 
-  // Handle color change
   const handleColorChange = (newColor: string) => {
     dispatch({ type: "SET_COLOR", color: newColor });
   };
 
-  // Handle stroke color change
   const handleStrokeColorChange = (newStrokeColor: string) => {
     dispatch({ type: "SET_STROKE_COLOR", strokeColor: newStrokeColor });
   };
 
-  // Handle stroke width change
   const handleStrokeWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newStrokeWidth = parseInt(e.target.value, 10);
     dispatch({ type: "SET_STROKE_WIDTH", strokeWidth: newStrokeWidth });
   };
 
-  // Handle shape type change
   const handleShapeTypeChange = (type: ShapeType) => {
     dispatch({ type: "SET_SHAPE_TYPE", shapeType: type });
   };
 
+  const toggleCollapse = () => {
+    setIsCollapsed((prev) => !prev);
+  };
+
+  // Adjust the height when collapsing or expanding
+  useEffect(() => {
+    if (isCollapsed) {
+      setHeight("0px");
+    } else {
+      const contentHeight = contentRef.current?.scrollHeight;
+      setHeight(`${contentHeight}px`);
+    }
+  }, [isCollapsed]);
+
+  const shapeIcons = {
+    freehand: <LineDrawIcon width={20} height={20} />,
+    rectangle: <SquareIcon width={20} height={20} />,
+    circle: <CircleIcon width={20} height={20} />,
+    line: <FreeDrawIcon width={20} height={20} />,
+    text: <TextIcon width={20} height={20} />,
+  };
+
   return (
-    <div className="z-50 absolute right-4 top-4 border bg-white flex flex-col p-2 items-center rounded w-32 gap-2">
-      Fill Color
-      <ColorPicker color={brushSettings.color} updateColor={handleColorChange} />
+    <div className="z-50 absolute right-2 top-2 border bg-white rounded w-24">
+      <div
+        className="overflow-hidden transition-all duration-300"
+        style={{ height }}
+        ref={contentRef}
+      >
+        <div className="flex flex-col p-2 items-center text-xs gap-2">
+          <div className="w-full flex flex-col items-center gap-0.5">
+            <span>Fill</span>
+            <ColorPicker
+              color={brushSettings.color}
+              updateColor={handleColorChange}
+            />
+          </div>
 
-      Stroke Color
-      <ColorPicker color={brushSettings.strokeColor} updateColor={handleStrokeColorChange} />
+          <div className="w-full flex flex-col items-center gap-0.5">
+            <span>Stroke</span>
+            <ColorPicker
+              color={brushSettings.strokeColor}
+              updateColor={handleStrokeColorChange}
+            />
+          </div>
 
-      {/* Stroke Width Selector */}
-      <label htmlFor="strokeWidth">Width</label>
-      <div className="flex flex-row gap-0.5 justify-between max-w-full w-full">
-        <input
-          id="strokeWidth"
-          type="range"
-          min="1"
-          max="32"
-          value={brushSettings.strokeWidth}
-          onChange={handleStrokeWidthChange}
-          className="flex-shrink-0 max-w-16"
-        />
-        <span className="whitespace-nowrap select-none">{`${brushSettings.strokeWidth}pt`}</span>
+          <div className="w-full flex flex-col items-center gap-0.5">
+            <label htmlFor="strokeWidth">Width</label>
+            <div className="flex flex-row gap-0.5 justify-between max-w-full w-full">
+              <input
+                id="strokeWidth"
+                type="range"
+                min="1"
+                max="32"
+                value={brushSettings.strokeWidth}
+                onChange={handleStrokeWidthChange}
+                className="flex-shrink-0 max-w-12"
+              />
+              <span className="whitespace-nowrap select-none">{`${brushSettings.strokeWidth}pt`}</span>
+            </div>
+          </div>
+
+          <div className="w-full flex flex-col items-center gap-0.5">
+            <label htmlFor="shapeType">Tool</label>
+            <div id="shapeType" className="grid grid-flow-row grid-cols-2 gap-1">
+              {["freehand", "line", "rectangle", "circle", "text"].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => handleShapeTypeChange(type as ShapeType)}
+                  className={`p-2 rounded aspect-square flex items-center justify-center ${brushSettings.shapeType === type
+                      ? "bg-background-color text-white"
+                      : "bg-gray-200 text-black"
+                    }`}
+                  title={type}
+                >
+                  {shapeIcons[type as ShapeType]}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <label htmlFor="shapeType">Shape</label>
-      <div id="shapeType" className="grid grid-flow-row grid-cols-2 gap-1">
-        {["freehand", "rectangle", "circle", "line", "text"].map((type) => (
-          <button
-            key={type}
-            onClick={() => handleShapeTypeChange(type as ShapeType)}
-            className={`p-3 rounded aspect-square ${
-              brushSettings.shapeType === type
-                ? "bg-background-color text-white"
-                : "bg-gray-200"
-            }`}
-            title={type.charAt(0).toUpperCase() + type.slice(1)}
-          >
-            {type.charAt(0).toUpperCase()}
-          </button>
-        ))}
-      </div>
+      <button
+        onClick={toggleCollapse}
+        className={`w-full p-2 mx-auto bg-gray-200 text-black text-xs hover:bg-background-color hover:text-white flex justify-center ${isCollapsed ? "hover:rounded" : "hover:rounded-b"}`}
+      >
+        <CollapseIcon collapsed={isCollapsed} />
+      </button>
     </div>
   );
 };

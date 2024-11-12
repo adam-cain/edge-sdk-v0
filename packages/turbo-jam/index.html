@@ -3,8 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 maximum-scale=1.0, user-scalable=no" />
     <title>Turbo Jam</title>
+    <style>
+      /* Disable scrolling */
+      html,
+      body {
+        overflow: hidden;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Prevent default touch zoom behavior */
+      html {
+        touch-action: none;
+        /* auto | none | [ [ pan-x | pan-left | pan-right ] || [ pan-y | pan-up | pan-down ] || pinch-zoom ] | manipulation */
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
