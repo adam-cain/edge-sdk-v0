@@ -15,9 +15,9 @@ const CollapseIcon: React.FC<CollapseProps> = ({ collapsed, width = "24", height
         stroke="currentColor"
     >
         {collapsed ? 
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l7 7 7-7" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 14l7 7 7-7" />
         :
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M23 19l-7-7-7 7" /> 
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M23 19l-7-7-7 7" /> 
         }
     </svg>
 );

@@ -12,7 +12,7 @@ const ColorPicker = ({ color, updateColor }:ColorPickerProps) => {
   };
 
   const handleRemoveColor = () => {
-    updateColor("#00000000")
+    updateColor("rgba(0, 0, 0, 0)")
   }
 
   return (
@@ -55,7 +55,7 @@ const ColorPicker = ({ color, updateColor }:ColorPickerProps) => {
         style={{ backgroundColor: color }}
       />
       {/* Transparent Symbol */}
-      {color === "#00000000" ?  <div
+      {color === "rgba(0, 0, 0, 0)" ?  <div
         className="
           absolute
           top-1/2

@@ -314,7 +314,6 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
   };
 
   const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
     const delta = -event.deltaY;
 
     // Adjust scale
@@ -362,7 +361,8 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
     <div
       className="bg-white size-full overflow-hidden"
       ref={boardRef}
-      style={{ position: "relative", width: "100%", height: "100%" }}
+      style={{ position: "relative", width: "100%", height: "100%", cursor: isPanning ? "grabbing" : isSpacePressed ? "grab" : "crosshair",
+      }}
       aria-label="Collaborative drawing board"
       // React Event Handlers
       onMouseMove={handleMouseMove}

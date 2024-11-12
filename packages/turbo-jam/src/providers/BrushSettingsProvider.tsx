@@ -51,7 +51,7 @@ export const BrushSettingsProvider: React.FC<BrushSettingsProviderProps> = ({
 }) => {
   const [brushSettings, dispatch] = useReducer(brushSettingsReducer, {
     color: stringToColor(currentPeerId),
-    strokeColor: "#00000000",
+    strokeColor: "rgba(0, 0, 0, 0)",
     strokeWidth: 5,
     shapeType: "freehand",
   });
