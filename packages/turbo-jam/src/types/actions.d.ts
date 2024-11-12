@@ -9,7 +9,7 @@ interface BaseJamAction extends EdgeAction<JamState> {
 }
 
 export interface SetRecipientNameAction extends BaseJamAction {
-  type: 'SET_RECIPIENT_NAME';
+  type: 'SET_NAME';
   payload: {
     name: string;
   };

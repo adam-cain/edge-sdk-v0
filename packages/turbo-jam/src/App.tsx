@@ -29,7 +29,7 @@ function App() {
   useEffect(() => {
     if (connected && turboEdge?.node.peerId) {
       dispatch({
-        type: "SET_RECIPIENT_NAME",
+        type: "SET_NAME",
         payload: { name },
         peerId: turboEdge.node.peerId.toString(),
       });

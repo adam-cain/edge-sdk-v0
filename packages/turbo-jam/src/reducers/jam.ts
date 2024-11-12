@@ -17,7 +17,7 @@ export function jamReducer(
   if (!action.peerId) return state;
 
   switch (action.type) {
-    case "SET_RECIPIENT_NAME": {
+    case "SET_NAME": {
       const { name } = action.payload;
       return {
         ...state,
