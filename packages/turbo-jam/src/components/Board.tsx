@@ -172,7 +172,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
         const deltaX = currentMidpoint.x - lastTouchMidpointRef.current!.x;
         const deltaY = currentMidpoint.y - lastTouchMidpointRef.current!.y;
 
-        setPanOffset((prevPanOffset) => ({
+        setPanOffset(() => ({
           x: newPanOffsetX + deltaX,
           y: newPanOffsetY + deltaY,
         }));
