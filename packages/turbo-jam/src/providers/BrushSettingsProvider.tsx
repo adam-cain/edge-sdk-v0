@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer } from "react";
 import stringToColor from "../util/stringToCursor";
-import { BrushSettings, ShapeType } from "../types";
+import { BrushSettings, ToolType } from "../types";
 
 interface BrushSettingsContextType {
   brushSettings: BrushSettings;
@@ -27,7 +27,7 @@ type BrushSettingsAction =
   | { type: "SET_COLOR"; color: string }
   | { type: "SET_STROKE_COLOR"; strokeColor: string }
   | { type: "SET_STROKE_WIDTH"; strokeWidth: number }
-  | { type: "SET_SHAPE_TYPE"; shapeType: ShapeType };
+  | { type: "SET_TOOL_TYPE"; toolType: ToolType };
 
 // Reducer function
 const brushSettingsReducer = (state: BrushSettings, action: BrushSettingsAction): BrushSettings => {
@@ -38,8 +38,8 @@ const brushSettingsReducer = (state: BrushSettings, action: BrushSettingsAction)
       return { ...state, strokeColor: action.strokeColor };
     case "SET_STROKE_WIDTH":
       return { ...state, strokeWidth: action.strokeWidth };
-    case "SET_SHAPE_TYPE":
-      return { ...state, shapeType: action.shapeType };
+    case "SET_TOOL_TYPE":
+      return { ...state, toolType: action.toolType };
     default:
       return state;
   }
@@ -53,7 +53,7 @@ export const BrushSettingsProvider: React.FC<BrushSettingsProviderProps> = ({
     color: stringToColor(currentPeerId),
     strokeColor: "rgba(0, 0, 0, 0)",
     strokeWidth: 5,
-    shapeType: "freehand",
+    toolType: "freehand",
   });
 
   return (

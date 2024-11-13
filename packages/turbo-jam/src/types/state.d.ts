@@ -1,4 +1,4 @@
-import { ShapeProperties, ShapeType } from './index';
+import { ShapeProperties, ToolType } from './index';
 
 export type DrawingId = string;
 
@@ -25,8 +25,8 @@ export interface JamState {
 }
 
 export interface BrushSettings {
-    color: string;
-    strokeColor: string;
-    strokeWidth: number;
-    shapeType: ShapeType;
+  color: string;
+  strokeColor: string;
+  strokeWidth: number;
+  toolType: ToolType;
 }

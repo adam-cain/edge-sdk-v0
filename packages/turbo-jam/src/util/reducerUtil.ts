@@ -28,8 +28,9 @@ function removeDrawing(
     drawings: Record<string, Drawing>,
     drawingId: DrawingId
 ): Record<string, Drawing> {
-    const { [drawingId]: _, ...rest } = drawings;
-    return rest;
+    return Object.fromEntries(
+        Object.entries(drawings).filter(([key]) => key !== drawingId)
+    );
 }
 
 export { updateCursor, addOrUpdateDrawing, removeDrawing }

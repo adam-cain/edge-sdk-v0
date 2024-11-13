@@ -1,6 +1,6 @@
 
 import { EdgeAction } from '@turbo-ing/edge-v0';
-import { JamState, DrawingId, Drawing } from './state';
+import { JamState, DrawingId } from './state';
 import { Point, ShapeProperties } from './shapes';
 
 interface BaseJamAction extends EdgeAction<JamState> {
@@ -25,7 +25,7 @@ export interface StartDrawingAction extends BaseJamAction {
   payload: {
     drawingId: DrawingId;
     color: string;
-    strokeColor :string, 
+    strokeColor: string,
     strokeWidth: number;
     properties: ShapeProperties;
   };
@@ -58,6 +58,12 @@ export interface ResetStateAction extends BaseJamAction {
   type: 'RESET_STATE';
 }
 
+export interface DeleteDrawingAction extends BaseJamAction {
+  type: "DELETE_DRAWING"; 
+  peerId: string; 
+  payload: { drawingId: DrawingId }
+}
+
 export type JamAction =
   | SetRecipientNameAction
   | UpdateCursorAction
@@ -65,4 +71,5 @@ export type JamAction =
   | UpdateDrawingAction
   | AddPointAction
   | StopDrawingAction
-  | ResetStateAction;
+  | ResetStateAction
+  | DeleteDrawingAction

@@ -128,10 +128,30 @@ export function jamReducer(
       };
     }
 
+    case "DELETE_DRAWING": {
+      const { drawingId } = action.payload;
+
+      // Remove the drawing from activeDrawings
+      const { [drawingId]: deletedActiveDrawing, ...updatedActiveDrawings } = state.activeDrawings;
+
+      // Remove the drawing from completedDrawings
+      const { [drawingId]: deletedCompletedDrawing, ...updatedCompletedDrawings } = state.completedDrawings;
+
+      if (!deletedActiveDrawing && !deletedCompletedDrawing) {
+        // Drawing not found, ignore action or handle error
+        return state;
+      }
+
+      return {
+        ...state,
+        activeDrawings: updatedActiveDrawings,
+        completedDrawings: updatedCompletedDrawings,
+      };
+    }
+
     case "RESET_STATE": {
       return initialState;
     }
-
     default:
       return state;
   }

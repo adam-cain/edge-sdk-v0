@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { Drawing } from "../types";
 import { renderDrawing } from "../util/shapeRenderer";
 
@@ -15,6 +15,45 @@ const DrawingCanvas = ({
     panOffset,
     scale,
 }: DrawingCanvasProps) => {
+
+
+    const renderGrid = useCallback((ctx: CanvasRenderingContext2D) => {
+        const gridSize = 20; // Set grid size
+
+        ctx.strokeStyle = "#e0e0e0"; // Light color for the grid lines
+        ctx.lineWidth = 0.4;
+
+        const canvas = canvasRef.current!;
+        const width = canvas.width / scale;
+        const height = canvas.height / scale;
+
+        const startX = (-panOffset.x) / scale;
+        const startY = (-panOffset.y) / scale;
+
+        const endX = startX + width;
+        const endY = startY + height;
+
+        // Adjust to grid size
+        const firstLineX = Math.floor(startX / gridSize) * gridSize;
+        const firstLineY = Math.floor(startY / gridSize) * gridSize;
+
+        // Draw vertical lines
+        for (let x = firstLineX; x <= endX; x += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(x, startY);
+            ctx.lineTo(x, endY);
+            ctx.stroke();
+        }
+
+        // Draw horizontal lines
+        for (let y = firstLineY; y <= endY; y += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(startX, y);
+            ctx.lineTo(endX, y);
+            ctx.stroke();
+        }
+    }, [canvasRef, panOffset, scale])
+
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -51,44 +90,7 @@ const DrawingCanvas = ({
         return () => {
             cancelAnimationFrame(animationFrameId);
         };
-    }, [drawings, canvasRef, panOffset, scale]);
-
-    const renderGrid = (ctx: CanvasRenderingContext2D) => {
-        const gridSize = 20; // Set grid size (e.g., 20px)
-
-        ctx.strokeStyle = "#e0e0e0"; // Light color for the grid lines
-        ctx.lineWidth = 0.4;
-
-        const canvas = canvasRef.current!;
-        const width = canvas.width / scale;
-        const height = canvas.height / scale;
-
-        const startX = (-panOffset.x) / scale;
-        const startY = (-panOffset.y) / scale;
-
-        const endX = startX + width;
-        const endY = startY + height;
-
-        // Adjust to grid size
-        const firstLineX = Math.floor(startX / gridSize) * gridSize;
-        const firstLineY = Math.floor(startY / gridSize) * gridSize;
-
-        // Draw vertical lines
-        for (let x = firstLineX; x <= endX; x += gridSize) {
-            ctx.beginPath();
-            ctx.moveTo(x, startY);
-            ctx.lineTo(x, endY);
-            ctx.stroke();
-        }
-
-        // Draw horizontal lines
-        for (let y = firstLineY; y <= endY; y += gridSize) {
-            ctx.beginPath();
-            ctx.moveTo(startX, y);
-            ctx.lineTo(endX, y);
-            ctx.stroke();
-        }
-    };
+    }, [drawings, canvasRef, panOffset, scale, renderGrid]);
 
     return (
         <canvas

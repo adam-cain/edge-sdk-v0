@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import ColorPicker from "./ColorPicker";
-import { ShapeType } from "../types";
+import { ShapeType, ToolType } from "../types";
 import { useBrushSettings } from "../providers/BrushSettingsProvider";
 import {
   CircleIcon,
@@ -20,7 +20,7 @@ const Toolbox = () => {
 
   useEffect(() => {
     dispatch({ type: "SET_COLOR", color: brushSettings.color });
-  }, [brushSettings.color]);
+  }, [brushSettings.color, dispatch]);
 
   const handleColorChange = (newColor: string) => {
     dispatch({ type: "SET_COLOR", color: newColor });
@@ -35,8 +35,8 @@ const Toolbox = () => {
     dispatch({ type: "SET_STROKE_WIDTH", strokeWidth: newStrokeWidth });
   };
 
-  const handleShapeTypeChange = (type: ShapeType) => {
-    dispatch({ type: "SET_SHAPE_TYPE", shapeType: type });
+  const handleShapeTypeChange = (type: ToolType) => {
+    dispatch({ type: "SET_TOOL_TYPE", toolType: type });
   };
 
   const toggleCollapse = () => {
@@ -108,7 +108,7 @@ const Toolbox = () => {
                 <button
                   key={type}
                   onClick={() => handleShapeTypeChange(type as ShapeType)}
-                  className={`p-2 rounded aspect-square flex items-center justify-center ${brushSettings.shapeType === type
+                  className={`p-2 rounded aspect-square flex items-center justify-center ${brushSettings.toolType === type
                       ? "bg-background-color text-white"
                       : "bg-gray-200 text-black"
                     }`}
