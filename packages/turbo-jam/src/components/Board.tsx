@@ -9,6 +9,7 @@ import {
 } from "../providers/BrushSettingsProvider";
 import { usePanZoom } from "../hooks/usePanZoom";
 import { useDrawing } from "../hooks/useDrawing";
+import BoundingBoxComponent from "./BoundingBox";
 
 interface BoardProps {
   dispatch: (action: JamAction) => Promise<void>;
@@ -17,11 +18,10 @@ interface BoardProps {
 }
 
 function Board({ dispatch, state, currentPeerId }: BoardProps) {
-  const { brushSettings } = useBrushSettings(); // Use the brush settings from context
+  const { brushSettings } = useBrushSettings();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
 
-  // Use custom hooks for pan/zoom and drawing logic
   const {
     panOffset,
     scale,
@@ -39,9 +39,11 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
 
   const {
     isDrawing,
+    boundingBox,
     startDrawing,
     stopDrawing,
     handleMove,
+    handleDelete,
   } = useDrawing({
     dispatch,
     currentPeerId,
@@ -49,6 +51,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
     panOffset,
     scale,
     boardRef,
+    state
   });
 
   // Responsive Canvas Sizing
@@ -65,7 +68,26 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
     updateCanvasSize();
     window.addEventListener("resize", updateCanvasSize);
     return () => window.removeEventListener("resize", updateCanvasSize);
-  }, [updateCanvasSize]);
+  }, [updateCanvasSize]);  
+  
+  useEffect(() => {
+    
+  const handleKeyDown = (event: KeyboardEvent) => {
+      // Check if Backspace key is pressed
+      if (event.key === "Backspace") {
+        event.preventDefault(); // Prevent default browser back navigation
+        handleDelete()
+      }
+    };
+
+    // Add event listener
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup event listener on unmount
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [dispatch, currentPeerId, handleDelete]);
 
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -140,8 +162,8 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
         cursor: isPanning
           ? "grabbing"
           : isSpacePressed
-          ? "grab"
-          : "crosshair",
+            ? "grab"
+            : "crosshair",
       }}
       aria-label="Collaborative drawing board"
       // React Event Handlers
@@ -170,6 +192,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
         scale={scale}
         panOffset={panOffset}
       />
+      <BoundingBoxComponent boundingBox={boundingBox} scale={scale} panOffset={panOffset} />
     </div>
   );
 }
@@ -178,8 +201,9 @@ export default function BoardWithProvider(props: BoardProps) {
   return (
     <BrushSettingsProvider currentPeerId={props.currentPeerId}>
       <Board {...props} />
-      {/* Toolbox for brush/stroke settings */}
+      {/* Toolbox for brush/stroke settings(requires BrushSettingsProvider context)*/}
       <Toolbox />
     </BrushSettingsProvider>
   );
 }
+

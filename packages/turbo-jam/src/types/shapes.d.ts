@@ -1,10 +1,15 @@
+import { shapeTypes } from "./enums";
 
-export const shapeTypes = ['freehand', 'rectangle', 'circle', 'line', 'text'] as const;
 export type ShapeType = typeof shapeTypes[number];
 
 export interface Point {
   x: number;
   y: number;
+}
+
+export interface BoundingBox{
+  min: Point,
+  max: Point,
 }
 
 export interface StartEnd {

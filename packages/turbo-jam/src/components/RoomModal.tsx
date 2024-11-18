@@ -11,7 +11,7 @@ interface RoomModalProps {
 function RoomModal({ name, setName, setRoomIdCommitted, isOpen, closeModal }: RoomModalProps) {
     const [localRoomId, setLocalRoomId] = useState("");
 
-    if (!isOpen) return null; // Don't render the modal if it's closed
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">

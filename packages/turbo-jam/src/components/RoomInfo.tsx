@@ -12,7 +12,7 @@ interface InfoProps {
 const RoomInfo = ({ peerId, status, roomId, names }: InfoProps) => {
     const [showInfo, setShowInfo] = useState<boolean>(false)
     return (<>
-        <div className="z-[60] absolute size-8 right-4 bottom-4 rounded-full border bg-white cursor-pointer p-1"
+        <div className="z-[9998] absolute size-8 right-4 bottom-4 rounded-full border bg-white cursor-pointer p-1"
             onClick={() => setShowInfo(!showInfo)}
         >
             <img src={Info} alt="room info" />

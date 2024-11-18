@@ -1,7 +1,7 @@
 import { updateCursor, addOrUpdateDrawing, removeDrawing } from "../util/reducerUtil"
 import { Drawing, JamState } from '../types/state';
 import { JamAction } from '../types/actions';
-import { FreehandShapeProperties, ShapeProperties } from "../types";
+import { FreehandShapeProperties, Point, ShapeProperties } from "../types";
 
 export const initialState: JamState = {
   cursors: {},
@@ -116,7 +116,7 @@ export function jamReducer(
         // Drawing not found, ignore action or handle error
         return state;
       }
-      
+
       // Move the drawing from active to completed
       return {
         ...state,
@@ -130,22 +130,95 @@ export function jamReducer(
 
     case "DELETE_DRAWING": {
       const { drawingId } = action.payload;
-
+      
       // Remove the drawing from activeDrawings
-      const { [drawingId]: deletedActiveDrawing, ...updatedActiveDrawings } = state.activeDrawings;
+      // Delting active drawingsprobably shouldnt need to be implemented imo
+      // const { [drawingId]: deletedActiveDrawing, ...updatedActiveDrawings } = state.activeDrawings;
 
       // Remove the drawing from completedDrawings
       const { [drawingId]: deletedCompletedDrawing, ...updatedCompletedDrawings } = state.completedDrawings;
 
-      if (!deletedActiveDrawing && !deletedCompletedDrawing) {
+      if (
+        // !deletedActiveDrawing && 
+        !deletedCompletedDrawing) {
         // Drawing not found, ignore action or handle error
         return state;
       }
 
       return {
         ...state,
-        activeDrawings: updatedActiveDrawings,
+        // activeDrawings: updatedActiveDrawings,
         completedDrawings: updatedCompletedDrawings,
+      };
+    }
+
+    case "MOVE_COMPLETED_DRAWING": {
+      const { drawingId, deltaX, deltaY } = action.payload;
+
+      // Retrieve the drawing by its ID
+      const drawing = state.completedDrawings[drawingId];
+      if (!drawing) return state; // If the drawing does not exist, return the current state
+
+      const { properties } = drawing;
+
+      // Update the drawing based on its type
+      let updatedProperties;
+
+      switch (properties.type) {
+        case "rectangle":
+        case "circle":
+        case "line":
+          updatedProperties = {
+            ...properties,
+            startPoint: {
+              x: properties.startPoint.x + deltaX,
+              y: properties.startPoint.y + deltaY,
+            },
+            endPoint: {
+              x: properties.endPoint.x + deltaX,
+              y: properties.endPoint.y + deltaY,
+            },
+          };
+          break;
+
+        case "text":
+          updatedProperties = {
+            ...properties,
+            position: {
+              x: properties.position.x + deltaX,
+              y: properties.position.y + deltaY,
+            },
+          };
+          break;
+
+        case "freehand":
+          updatedProperties = {
+            ...properties,
+            points: properties.points.map((point: Point) => ({
+              x: point.x + deltaX,
+              y: point.y + deltaY,
+            })),
+          };
+          break;
+
+        default:
+          return state;
+      }
+
+      const updatedDrawing = {
+        ...state.completedDrawings[drawingId],
+        ...drawing,
+        properties: updatedProperties,
+      };
+      
+      return {
+        ...state,
+        completedDrawings: {
+          ...Object.fromEntries(
+            Object.entries(state.completedDrawings).filter(([key]) => key !== drawingId)
+          ),
+          [drawingId]: updatedDrawing,
+        },
       };
     }
 

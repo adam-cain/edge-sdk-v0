@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { Drawing } from "../types";
-import { renderDrawing } from "../util/shapeRenderer";
+import { renderDrawing } from "../util/shapes";
 
 interface DrawingCanvasProps {
     drawings: Drawing[];

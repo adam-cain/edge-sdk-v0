@@ -64,6 +64,15 @@ export interface DeleteDrawingAction extends BaseJamAction {
   payload: { drawingId: DrawingId }
 }
 
+export interface MoveCompletedDrawingAction extends BaseJamAction {
+  type: 'MOVE_COMPLETED_DRAWING';
+  payload: {
+    drawingId: DrawingId;
+    deltaX: number;
+    deltaY: number;
+  };
+}
+
 export type JamAction =
   | SetRecipientNameAction
   | UpdateCursorAction
@@ -73,3 +82,5 @@ export type JamAction =
   | StopDrawingAction
   | ResetStateAction
   | DeleteDrawingAction
+  | MoveCompletedDrawingAction
+  

@@ -1,4 +1,3 @@
-import { shapeTypes } from "./shapes";
+import { toolTypes } from "./enums";
 
-export const toolTypes = [...shapeTypes, 'select'] as const;
 export type ToolType = typeof toolTypes[number];
