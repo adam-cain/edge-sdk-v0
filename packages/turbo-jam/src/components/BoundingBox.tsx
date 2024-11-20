@@ -23,9 +23,9 @@ export default function SelectionBoundingBox({
   isGrabbing,
   onResizeStart,
 }: BoundBoxProps) {
+  const isMobile = useIsCoarsePointer();
   if (!boundingBox) return null;
   // Handle size and offset for centering, larger on mobile(course) devices.
-  const isMobile = useIsCoarsePointer();
   const handleSize = isMobile ? 15 : 10;
   const halfHandleSize = handleSize / 2;
 
@@ -54,7 +54,6 @@ export default function SelectionBoundingBox({
     { direction: ResizeDirection.Left, x: 0, y: height / 2, cursor: "cursor-ew-resize" },
     { direction: ResizeDirection.Right, x: width, y: height / 2, cursor: "cursor-ew-resize" },
 ];
-
 
   return (
     <div

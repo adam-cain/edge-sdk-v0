@@ -1,1 +1,1 @@
-{"root":["./vite.config.ts"],"version":"5.6.2"}
+{"root":["./vite.config.ts","./src/types/actions.d.ts","./src/types/enums.ts","./src/types/index.d.ts","./src/types/shapes.d.ts","./src/types/state.d.ts","./src/types/tools.d.ts"],"version":"5.6.2"}

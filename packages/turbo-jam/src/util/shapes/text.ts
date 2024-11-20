@@ -22,7 +22,7 @@ export class Text implements Shape {
         const { position, text } = drawing.properties;
     
         // Clone position to avoid mutating the original drawing
-        let newPosition: Point = { ...position };
+        const newPosition: Point = { ...position };
     
         // Get the current font size
         let fontSize = drawing.strokeWidth * 4;
@@ -87,8 +87,8 @@ export class Text implements Shape {
         const newHeight = maxY - minY;
     
         // Use the smaller scaling factor to maintain aspect ratio
-        let scaleX = newWidth / originalWidth;
-        let scaleY = newHeight / originalHeight;
+        const scaleX = newWidth / originalWidth;
+        const scaleY = newHeight / originalHeight;
         let scale = Math.min(scaleX, scaleY);
     
         // Update font size

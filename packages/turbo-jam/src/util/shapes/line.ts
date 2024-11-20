@@ -24,10 +24,10 @@ export class Line implements Shape {
         }
 
         // Determine which point has the min and max x and y coordinates
-        let minXPoint = newStartPoint.x <= newEndPoint.x ? newStartPoint : newEndPoint;
-        let maxXPoint = newStartPoint.x > newEndPoint.x ? newStartPoint : newEndPoint;
-        let minYPoint = newStartPoint.y <= newEndPoint.y ? newStartPoint : newEndPoint;
-        let maxYPoint = newStartPoint.y > newEndPoint.y ? newStartPoint : newEndPoint;
+        const minXPoint = newStartPoint.x <= newEndPoint.x ? newStartPoint : newEndPoint;
+        const maxXPoint = newStartPoint.x > newEndPoint.x ? newStartPoint : newEndPoint;
+        const minYPoint = newStartPoint.y <= newEndPoint.y ? newStartPoint : newEndPoint;
+        const maxYPoint = newStartPoint.y > newEndPoint.y ? newStartPoint : newEndPoint;
 
         // Adjust points based on direction vector and delta
         if (vector.x !== 0) {
