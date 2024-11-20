@@ -1,7 +1,74 @@
 import { BoundingBox, Drawing, Point } from "../../types";
+import {directionVectors, ResizeDirection}from "../../types/enums"
 import { Shape } from ".";
 
 export class Line implements Shape {
+    resize(drawing: Drawing, direction: ResizeDirection, delta: Point): Drawing {
+        if (drawing.properties.type !== "line") {
+            throw Error("Expected Line Drawing");
+        }
+
+        const { startPoint, endPoint } = drawing.properties;
+
+        if (!startPoint || !endPoint) {
+            throw new Error("StartPoint and EndPoint are required for resizing");
+        }
+
+        // Clone the points to avoid mutating the original drawing
+        const newStartPoint: Point = { ...startPoint };
+        const newEndPoint: Point = { ...endPoint };
+
+        const vector = directionVectors[direction];
+        if (!vector) {
+            throw new Error("Invalid resize direction");
+        }
+
+        // Determine which point has the min and max x and y coordinates
+        let minXPoint = newStartPoint.x <= newEndPoint.x ? newStartPoint : newEndPoint;
+        let maxXPoint = newStartPoint.x > newEndPoint.x ? newStartPoint : newEndPoint;
+        let minYPoint = newStartPoint.y <= newEndPoint.y ? newStartPoint : newEndPoint;
+        let maxYPoint = newStartPoint.y > newEndPoint.y ? newStartPoint : newEndPoint;
+
+        // Adjust points based on direction vector and delta
+        if (vector.x !== 0) {
+            if (vector.x > 0) {
+                // East - adjust the point with the maximum x-coordinate
+                maxXPoint.x += delta.x;
+            } else if (vector.x < 0) {
+                // West - adjust the point with the minimum x-coordinate
+                minXPoint.x += delta.x;
+            }
+        }
+
+        if (vector.y !== 0) {
+            if (vector.y > 0) {
+                // South - adjust the point with the maximum y-coordinate
+                maxYPoint.y += delta.y;
+            } else if (vector.y < 0) {
+                // North - adjust the point with the minimum y-coordinate
+                minYPoint.y += delta.y;
+            }
+        }
+
+        // Optionally enforce a minimum length to prevent collapsing the line
+        const minLength = 1; // Minimum allowed length
+        const lengthSquared = Math.pow(newEndPoint.x - newStartPoint.x, 2) + Math.pow(newEndPoint.y - newStartPoint.y, 2);
+        if (lengthSquared < minLength * minLength) {
+            // Constrain the line to the minimum length
+            // Implement logic to adjust the points to maintain minimum length
+        }
+
+        // Return the updated drawing with the new points
+        return {
+            ...drawing,
+            properties: {
+                ...drawing.properties,
+                startPoint: newStartPoint,
+                endPoint: newEndPoint
+            }
+        };
+    }
+    
     getBoundingBox(drawing: Drawing): BoundingBox {
         if (drawing.properties.type !== "line") {
             throw Error("Expected Line Drawing");

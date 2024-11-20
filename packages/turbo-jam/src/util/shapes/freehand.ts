@@ -1,6 +1,132 @@
 import { BoundingBox, Drawing, Point } from "../../types";
+import {directionVectors, ResizeDirection}from "../../types/enums"
 import { Shape } from ".";
 export class FreeHand implements Shape {
+    resize(drawing: Drawing, direction: ResizeDirection, delta: Point): Drawing {
+        if (drawing.properties.type !== "freehand") {
+            throw Error("Expected Freehand Drawing");
+        }
+
+        const { points } = drawing.properties;
+
+        if (!points || points.length === 0) {
+            throw new Error("No points in the freehand drawing.");
+        }
+
+        // Calculate the current bounding box
+        let minX = points[0].x;
+        let maxX = points[0].x;
+        let minY = points[0].y;
+        let maxY = points[0].y;
+
+        for (const point of points) {
+            if (point.x < minX) minX = point.x;
+            if (point.x > maxX) maxX = point.x;
+            if (point.y < minY) minY = point.y;
+            if (point.y > maxY) maxY = point.y;
+        }
+
+        // Store original bounding box dimensions
+        const originalMinX = minX;
+        const originalMaxX = maxX;
+        const originalMinY = minY;
+        const originalMaxY = maxY;
+
+        const vector = directionVectors[direction];
+        if (!vector) {
+            throw new Error("Invalid resize direction");
+        }
+
+        // Adjust the bounding box based on the direction vector and delta
+        if (vector.x < 0) {
+            minX += delta.x;
+        }
+        if (vector.x > 0) {
+            maxX += delta.x;
+        }
+        if (vector.y < 0) {
+            minY += delta.y;
+        }
+        if (vector.y > 0) {
+            maxY += delta.y;
+        }
+
+        // Enforce minimum width and height
+        const minWidth = 10;
+        const minHeight = 10;
+
+        if (maxX - minX < minWidth) {
+            if (vector.x < 0) {
+                minX = maxX - minWidth;
+            } else if (vector.x > 0) {
+                maxX = minX + minWidth;
+            } else {
+                minX = (minX + maxX) / 2 - minWidth / 2;
+                maxX = minX + minWidth;
+            }
+        }
+
+        if (maxY - minY < minHeight) {
+            if (vector.y < 0) {
+                minY = maxY - minHeight;
+            } else if (vector.y > 0) {
+                maxY = minY + minHeight;
+            } else {
+                minY = (minY + maxY) / 2 - minHeight / 2;
+                maxY = minY + minHeight;
+            }
+        }
+
+        // Compute scaling factors
+        let width = originalMaxX - originalMinX;
+        let height = originalMaxY - originalMinY;
+
+        if (width === 0) {
+            width = 1; // Avoid division by zero
+        }
+        if (height === 0) {
+            height = 1; // Avoid division by zero
+        }
+
+        const scaleX = (maxX - minX) / width;
+        const scaleY = (maxY - minY) / height;
+
+        // Determine scaling origin
+        let originX: number;
+        let originY: number;
+
+        if (vector.x === 0) {
+            originX = (originalMinX + originalMaxX) / 2;
+        } else if (vector.x < 0) {
+            originX = originalMaxX; // Right edge remains fixed
+        } else {
+            originX = originalMinX; // Left edge remains fixed
+        }
+
+        if (vector.y === 0) {
+            originY = (originalMinY + originalMaxY) / 2;
+        } else if (vector.y < 0) {
+            originY = originalMaxY; // Bottom edge remains fixed
+        } else {
+            originY = originalMinY; // Top edge remains fixed
+        }
+
+        // Apply scaling to each point
+        const newPoints = points.map(point => {
+            const scaledX = originX + (point.x - originX) * scaleX;
+            const scaledY = originY + (point.y - originY) * scaleY;
+            return { x: scaledX, y: scaledY };
+        });
+
+        // Return the updated drawing
+        return {
+            ...drawing,
+            properties: {
+                ...drawing.properties,
+                points: newPoints
+            }
+        };
+    }
     getBoundingBox(drawing: Drawing): BoundingBox {
         if (drawing.properties.type !== "freehand") {
             throw Error("Expected Freehand Drawing");

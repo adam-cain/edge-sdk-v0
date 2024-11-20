@@ -2,6 +2,7 @@
 import { EdgeAction } from '@turbo-ing/edge-v0';
 import { JamState, DrawingId } from './state';
 import { Point, ShapeProperties } from './shapes';
+import { ResizeDirection } from './enums';
 
 interface BaseJamAction extends EdgeAction<JamState> {
   peerId: string;
@@ -73,6 +74,17 @@ export interface MoveCompletedDrawingAction extends BaseJamAction {
   };
 }
 
+export interface ResizeDrawingAction extends BaseJamAction {
+  type: 'RESIZE_DRAWING';
+  payload: {
+    drawingId: DrawingId;
+    deltaX: number;
+    deltaY: number;
+    scale: number;
+    resizeDirection: ResizeDirection
+  };
+}
+
 export type JamAction =
   | SetRecipientNameAction
   | UpdateCursorAction
@@ -83,4 +95,5 @@ export type JamAction =
   | ResetStateAction
   | DeleteDrawingAction
   | MoveCompletedDrawingAction
+  | ResizeDrawingAction
   

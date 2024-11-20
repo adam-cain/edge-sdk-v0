@@ -1,6 +1,58 @@
 import { BoundingBox, Drawing, Point } from "../../types";
+import {directionVectors, ResizeDirection}from "../../types/enums"
 import { Shape } from ".";
 export class Rectangle implements Shape {
+    resize(drawing: Drawing, direction: ResizeDirection, delta: Point): Drawing {
+        if (drawing.properties.type !== "rectangle") {
+            throw Error("Expected Rectangle Drawing");
+        }
+    
+        const { startPoint, endPoint } = drawing.properties;
+    
+        if (!startPoint || !endPoint) {
+            throw new Error("StartPoint and EndPoint are required for resizing");
+        }
+    
+        // Scale the delta
+        const deltaX = delta.x / 2;
+        const deltaY = delta.y / 2;
+    
+        let minX = Math.min(startPoint.x, endPoint.x);
+        let maxX = Math.max(startPoint.x, endPoint.x);
+        let minY = Math.min(startPoint.y, endPoint.y);
+        let maxY = Math.max(startPoint.y, endPoint.y);
+    
+        const minWidth = 10; // Minimum allowed width
+        const minHeight = 10; // Minimum allowed height
+    
+        const vector = directionVectors[direction];
+        if (!vector) {
+            throw new Error("Invalid resize direction");
+        }
+    
+        // Adjust bounds based on direction vector
+        if (vector.x < 0 && maxX - (minX + deltaX) >= minWidth) {
+            minX += deltaX; // Adjust left edge
+        }
+        if (vector.x > 0 && (maxX + deltaX) - minX >= minWidth) {
+            maxX += deltaX; // Adjust right edge
+        }
+        if (vector.y < 0 && maxY - (minY + deltaY) >= minHeight) {
+            minY += deltaY; // Adjust top edge
+        }
+        if (vector.y > 0 && (maxY + deltaY) - minY >= minHeight) {
+            maxY += deltaY; // Adjust bottom edge
+        }
+    
+        const newStartPoint: Point = { x: minX, y: minY };
+        const newEndPoint: Point = { x: maxX, y: maxY };
+    
+        drawing.properties.startPoint = newStartPoint;
+        drawing.properties.endPoint = newEndPoint;
+    
+        return drawing;
+    }
+    
     getBoundingBox(drawing: Drawing): BoundingBox {
         if (drawing.properties.type !== "rectangle") {
             throw Error("Expected Rectangle Drawing");
@@ -26,7 +78,7 @@ export class Rectangle implements Shape {
             },
             max: {
                 x: maxX,
-                y:maxY
+                y: maxY
             }
         }
     }

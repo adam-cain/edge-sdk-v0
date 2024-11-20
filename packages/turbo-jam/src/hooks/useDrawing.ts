@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ShapeProperties, DrawingId, JamAction, Point, JamState, BoundingBox } from "../types";
+import { ShapeProperties, DrawingId, JamAction, Point, JamState, BoundingBox, ResizeDirection } from "../types";
 import { BrushSettings } from "../types";
 import { v4 as uuidv4 } from "uuid";
 import { collides, getShapeBoundingBox } from "../util/shapes";
@@ -28,6 +28,9 @@ export function useDrawing({
   const [selectedDrawingId, setSelectedDrawingId] = useState<DrawingId | null>(null);
   const [startMoveCoords, setStartMoveCoords] = useState<Point | null>(null);
   const [boundingBox, setBoundingBox] = useState<BoundingBox | null>(null);
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeStartPoint, setResizeStartPoint] = useState<Point | null>(null);
+  const [resizeDirection, setResizeDirection] = useState<ResizeDirection|null>(null);
 
   const selectedDrawing = selectedDrawingId ? state.completedDrawings[selectedDrawingId] : null;
   
@@ -39,12 +42,8 @@ export function useDrawing({
     }
   }, [
     selectedDrawing,
-    state.completedDrawings,
+    selectedDrawing?.properties
   ]);
-
-  useEffect(()=>{
-    console.log(selectedDrawingId)
-  },[selectedDrawingId])
 
   const getRelativeCoordinates = (clientX: number, clientY: number): Point | null => {
     const rect = boardRef.current?.getBoundingClientRect();
@@ -104,6 +103,7 @@ export function useDrawing({
 
         setSelectedDrawingId(selectedId);
         setStartMoveCoords(coords);
+        //Brings drawing to front when clicked.
         dispatch({
           type: "MOVE_COMPLETED_DRAWING",
           peerId: currentPeerId,
@@ -138,6 +138,8 @@ export function useDrawing({
 
   const stopDrawing = () => {
     setIsDrawing(false);
+    setIsResizing(false);
+    setResizeStartPoint(null)
     if (currentDrawingId) {
       dispatch({
         type: "STOP_DRAWING",
@@ -150,7 +152,7 @@ export function useDrawing({
 
   const handleMove = (clientX: number, clientY: number) => {
     const coords = getRelativeCoordinates(clientX, clientY);
-    if (!coords) return;
+    if (!coords) return;    
 
     dispatch({
       type: "UPDATE_CURSOR",
@@ -158,6 +160,26 @@ export function useDrawing({
       peerId: currentPeerId,
     });
 
+    if(isResizing && selectedDrawingId && resizeDirection && resizeStartPoint){
+      const deltaX = coords.x - resizeStartPoint.x;
+      const deltaY = coords.y - resizeStartPoint.y;
+      
+      dispatch({
+        type: "RESIZE_DRAWING",
+        peerId: currentPeerId,
+        payload: {
+          drawingId: selectedDrawingId,
+          deltaX,
+          deltaY,
+          scale: scale,
+          resizeDirection
+        }
+      })
+      setResizeStartPoint(coords)
+      setStartMoveCoords(coords)
+      setBoundingBox(getShapeBoundingBox(state.completedDrawings[selectedDrawingId]))
+    }
+    
     if (isDrawing && currentDrawingId) {
       switch (brushSettings.toolType) {
         case "freehand":
@@ -192,7 +214,6 @@ export function useDrawing({
           // Calculate the movement delta
           const deltaX = coords.x - startMoveCoords.x;
           const deltaY = coords.y - startMoveCoords.y;
-
           // Dispatch the move action with the delta
           dispatch({
             type: "MOVE_COMPLETED_DRAWING",
@@ -213,9 +234,7 @@ export function useDrawing({
   };
 
   const handleDelete = () => {
-    console.log("handleDelete called", selectedDrawingId);    
     if (selectedDrawingId) {
-      console.log("Dispatching DELETE_DRAWING action");
       dispatch({
         type: "DELETE_DRAWING",
         peerId: currentPeerId,
@@ -223,13 +242,19 @@ export function useDrawing({
           drawingId: selectedDrawingId,
         },
       });
-      // Optionally clear selection after deletion
       setSelectedDrawingId(null);
       setStartMoveCoords(null);
-    } else {
-      console.log("No drawing selected for deletion");
     }
   };
+
+  const handleResize = (direction: ResizeDirection, point: Point) => {
+    if(!selectedDrawingId) return;
+    const coords = getRelativeCoordinates(point.x,point.y)
+    setResizeStartPoint(coords)
+    setResizeDirection(direction)
+    setIsResizing(true)
+    console.log("resizing");
+  }
 
   return {
     isDrawing,
@@ -237,6 +262,7 @@ export function useDrawing({
     startDrawing,
     stopDrawing,
     handleMove,
-    handleDelete
+    handleDelete,
+    handleResize
   };
 }

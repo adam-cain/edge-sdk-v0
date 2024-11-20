@@ -2,6 +2,7 @@ import { updateCursor, addOrUpdateDrawing, removeDrawing } from "../util/reducer
 import { Drawing, JamState } from '../types/state';
 import { JamAction } from '../types/actions';
 import { FreehandShapeProperties, Point, ShapeProperties } from "../types";
+import { resizeDrawing } from "../util/shapes";
 
 export const initialState: JamState = {
   cursors: {},
@@ -85,7 +86,7 @@ export function jamReducer(
     case "UPDATE_DRAWING": {
       const { drawingId, properties } = action.payload;
       const drawing = state.activeDrawings[drawingId];
-
+      
       if (!drawing) {
         // Drawing not found, ignore action or handle error
         return state;
@@ -98,6 +99,8 @@ export function jamReducer(
           ...properties,
         } as ShapeProperties,
       };
+
+      console.log("Updating drawing", drawingId)
 
       return {
         ...state,
@@ -220,6 +223,20 @@ export function jamReducer(
           [drawingId]: updatedDrawing,
         },
       };
+    }
+
+    case "RESIZE_DRAWING":{
+      const { drawingId, deltaX, deltaY, scale, resizeDirection } = action.payload;
+      const updatedDrawing = resizeDrawing(state.completedDrawings[drawingId],resizeDirection,{x:deltaX, y:deltaY}, scale)
+      if(!updatedDrawing) return state
+
+      return{
+        ...state,
+        completedDrawings: {
+          ...state.completedDrawings,
+          [drawingId]: updatedDrawing
+        }
+      }
     }
 
     case "RESET_STATE": {

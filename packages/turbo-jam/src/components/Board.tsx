@@ -44,6 +44,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
     stopDrawing,
     handleMove,
     handleDelete,
+    handleResize
   } = useDrawing({
     dispatch,
     currentPeerId,
@@ -115,7 +116,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
   };
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    event.preventDefault();
+    // event.preventDefault();
     if (event.touches.length === 1 && !isPinching) {
       const touch = event.touches[0];
       startDrawing(touch.clientX, touch.clientY);
@@ -127,7 +128,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
     if (isPinching && event.touches.length === 2) {
       panZoomHandleTouchMove(event);
-    } else if (event.touches.length === 1 && isDrawing) {
+    } else if (event.touches.length === 1) {
       const touch = event.touches[0];
       handleMove(touch.clientX, touch.clientY);
     }
@@ -192,7 +193,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
         scale={scale}
         panOffset={panOffset}
       />
-      <BoundingBoxComponent boundingBox={boundingBox} scale={scale} panOffset={panOffset} />
+      <BoundingBoxComponent boundingBox={boundingBox} scale={scale} panOffset={panOffset} isGrabbing={isDrawing} onResizeStart={handleResize}/>
     </div>
   );
 }
