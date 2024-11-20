@@ -83,10 +83,10 @@ export function jamReducer(
       };
     }
 
-    case "UPDATE_DRAWING": {
+    case "UPDATE_DRAWING_PROPERTIES": {
       const { drawingId, properties } = action.payload;
       const drawing = state.activeDrawings[drawingId];
-      
+
       if (!drawing) {
         // Drawing not found, ignore action or handle error
         return state;
@@ -133,24 +133,17 @@ export function jamReducer(
 
     case "DELETE_DRAWING": {
       const { drawingId } = action.payload;
-      
-      // Remove the drawing from activeDrawings
-      // Delting active drawingsprobably shouldnt need to be implemented imo
-      // const { [drawingId]: deletedActiveDrawing, ...updatedActiveDrawings } = state.activeDrawings;
 
       // Remove the drawing from completedDrawings
       const { [drawingId]: deletedCompletedDrawing, ...updatedCompletedDrawings } = state.completedDrawings;
 
-      if (
-        // !deletedActiveDrawing && 
-        !deletedCompletedDrawing) {
+      if (!deletedCompletedDrawing) {
         // Drawing not found, ignore action or handle error
         return state;
       }
 
       return {
         ...state,
-        // activeDrawings: updatedActiveDrawings,
         completedDrawings: updatedCompletedDrawings,
       };
     }
@@ -213,7 +206,7 @@ export function jamReducer(
         ...drawing,
         properties: updatedProperties,
       };
-      
+
       return {
         ...state,
         completedDrawings: {
@@ -225,18 +218,40 @@ export function jamReducer(
       };
     }
 
-    case "RESIZE_DRAWING":{
+    case "RESIZE_DRAWING": {
       const { drawingId, deltaX, deltaY, scale, resizeDirection } = action.payload;
-      const updatedDrawing = resizeDrawing(state.completedDrawings[drawingId],resizeDirection,{x:deltaX, y:deltaY}, scale)
-      if(!updatedDrawing) return state
+      const updatedDrawing = resizeDrawing(state.completedDrawings[drawingId], resizeDirection, { x: deltaX, y: deltaY }, scale)
+      if (!updatedDrawing) return state
 
-      return{
+      return {
         ...state,
         completedDrawings: {
           ...state.completedDrawings,
           [drawingId]: updatedDrawing
         }
       }
+    }
+
+    case "UPDATE_DRAWING_APPEARANCE": {
+      const { drawingId, color, strokeColor, strokeWidth } = action.payload
+
+      const drawing = state.completedDrawings[drawingId];
+      if (!drawing) return state;
+    
+      const updatedDrawing = {
+        ...drawing,
+        color,
+        strokeColor,
+        strokeWidth,
+      };
+    
+      return {
+        ...state,
+        completedDrawings: {
+          ...state.completedDrawings,
+          [drawingId]: updatedDrawing,
+        },
+      };
     }
 
     case "RESET_STATE": {

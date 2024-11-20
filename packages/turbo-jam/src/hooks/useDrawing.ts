@@ -1,8 +1,17 @@
 import { useEffect, useState } from "react";
-import { ShapeProperties, DrawingId, JamAction, Point, JamState, BoundingBox, ResizeDirection } from "../types";
-import { BrushSettings } from "../types";
+import {
+  ShapeProperties,
+  DrawingId,
+  JamAction,
+  Point,
+  JamState,
+  BoundingBox,
+  ResizeDirection,
+  BrushSettings
+} from "../types";
 import { v4 as uuidv4 } from "uuid";
 import { collides, getShapeBoundingBox } from "../util/shapes";
+import { useBrushSettings } from "../providers/BrushSettingsProvider";
 
 interface UseDrawingProps {
   dispatch: (action: JamAction) => Promise<void>;
@@ -18,22 +27,25 @@ export function useDrawing({
   dispatch,
   state,
   currentPeerId,
-  brushSettings,
   panOffset,
   scale,
   boardRef,
 }: UseDrawingProps) {
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentDrawingId, setCurrentDrawingId] = useState<DrawingId | null>(null);
+
   const [selectedDrawingId, setSelectedDrawingId] = useState<DrawingId | null>(null);
   const [startMoveCoords, setStartMoveCoords] = useState<Point | null>(null);
+
   const [boundingBox, setBoundingBox] = useState<BoundingBox | null>(null);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeStartPoint, setResizeStartPoint] = useState<Point | null>(null);
-  const [resizeDirection, setResizeDirection] = useState<ResizeDirection|null>(null);
+  const [resizeDirection, setResizeDirection] = useState<ResizeDirection | null>(null);
 
   const selectedDrawing = selectedDrawingId ? state.completedDrawings[selectedDrawingId] : null;
-  
+
+  const { brushSettings, dispatchBrushSettings } = useBrushSettings()
+
   useEffect(() => {
     if (selectedDrawing) {
       setBoundingBox(getShapeBoundingBox(selectedDrawing));
@@ -44,6 +56,28 @@ export function useDrawing({
     selectedDrawing,
     selectedDrawing?.properties
   ]);
+
+  useEffect(() => {
+    if (!selectedDrawing) { return }
+    dispatchBrushSettings({ type: "SET_COLOR", color: selectedDrawing.color })
+    dispatchBrushSettings({ type: "SET_STROKE_COLOR", strokeColor: selectedDrawing.strokeColor })
+    dispatchBrushSettings({ type: "SET_STROKE_WIDTH", strokeWidth: selectedDrawing.strokeWidth })
+  }, [selectedDrawing, dispatchBrushSettings])
+
+  useEffect(() => {
+    if (selectedDrawing && selectedDrawingId) {
+      dispatch({
+        type: "UPDATE_DRAWING_APPEARANCE",
+        payload: {
+          color: brushSettings.color,
+          strokeColor: brushSettings.strokeColor,
+          strokeWidth: brushSettings.strokeWidth,
+          drawingId: selectedDrawingId
+        },
+        peerId: currentPeerId
+      })
+    }
+  }, [brushSettings])
 
   const getRelativeCoordinates = (clientX: number, clientY: number): Point | null => {
     const rect = boardRef.current?.getBoundingClientRect();
@@ -116,7 +150,7 @@ export function useDrawing({
         return;
       }
       default:
-      return;
+        return;
     }
     setSelectedDrawingId(null);
     setStartMoveCoords(null);
@@ -152,7 +186,7 @@ export function useDrawing({
 
   const handleMove = (clientX: number, clientY: number) => {
     const coords = getRelativeCoordinates(clientX, clientY);
-    if (!coords) return;    
+    if (!coords) return;
 
     dispatch({
       type: "UPDATE_CURSOR",
@@ -160,10 +194,10 @@ export function useDrawing({
       peerId: currentPeerId,
     });
 
-    if(isResizing && selectedDrawingId && resizeDirection && resizeStartPoint){
+    if (isResizing && selectedDrawingId && resizeDirection && resizeStartPoint) {
       const deltaX = coords.x - resizeStartPoint.x;
       const deltaY = coords.y - resizeStartPoint.y;
-      
+
       dispatch({
         type: "RESIZE_DRAWING",
         peerId: currentPeerId,
@@ -179,7 +213,7 @@ export function useDrawing({
       setStartMoveCoords(coords)
       setBoundingBox(getShapeBoundingBox(state.completedDrawings[selectedDrawingId]))
     }
-    
+
     if (isDrawing && currentDrawingId) {
       switch (brushSettings.toolType) {
         case "freehand":
@@ -198,7 +232,7 @@ export function useDrawing({
         case "line":
           // Update the drawing's endPoint for other shapes
           dispatch({
-            type: "UPDATE_DRAWING",
+            type: "UPDATE_DRAWING_PROPERTIES",
             payload: {
               drawingId: currentDrawingId,
               properties: {
@@ -208,7 +242,7 @@ export function useDrawing({
             peerId: currentPeerId,
           });
           break;
-        case "select":{
+        case "select": {
           // const selectedId = collides(coords);
           if (!selectedDrawingId || !startMoveCoords) return;
           // Calculate the movement delta
@@ -248,8 +282,8 @@ export function useDrawing({
   };
 
   const handleResize = (direction: ResizeDirection, point: Point) => {
-    if(!selectedDrawingId) return;
-    const coords = getRelativeCoordinates(point.x,point.y)
+    if (!selectedDrawingId) return;
+    const coords = getRelativeCoordinates(point.x, point.y)
     setResizeStartPoint(coords)
     setResizeDirection(direction)
     setIsResizing(true)

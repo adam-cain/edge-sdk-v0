@@ -24,30 +24,30 @@ const toolIcons: Record<ToolType, JSX.Element> = {
 };
 
 const Toolbox = () => {
-  const { brushSettings, dispatch } = useBrushSettings();
+  const { brushSettings, dispatchBrushSettings } = useBrushSettings();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [height, setHeight] = useState("auto");
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    dispatch({ type: "SET_COLOR", color: brushSettings.color });
-  }, [brushSettings.color, dispatch]);
+    dispatchBrushSettings({ type: "SET_COLOR", color: brushSettings.color });
+  }, [brushSettings.color, dispatchBrushSettings]);
 
   const handleColorChange = (newColor: string) => {
-    dispatch({ type: "SET_COLOR", color: newColor });
+    dispatchBrushSettings({ type: "SET_COLOR", color: newColor });
   };
 
   const handleStrokeColorChange = (newStrokeColor: string) => {
-    dispatch({ type: "SET_STROKE_COLOR", strokeColor: newStrokeColor });
+    dispatchBrushSettings({ type: "SET_STROKE_COLOR", strokeColor: newStrokeColor });
   };
 
   const handleStrokeWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newStrokeWidth = parseInt(e.target.value, 10);
-    dispatch({ type: "SET_STROKE_WIDTH", strokeWidth: newStrokeWidth });
+    dispatchBrushSettings({ type: "SET_STROKE_WIDTH", strokeWidth: newStrokeWidth });
   };
 
   const handleToolChange = (type: ToolType) => {
-    dispatch({ type: "SET_TOOL_TYPE", toolType: type });
+    dispatchBrushSettings({ type: "SET_TOOL_TYPE", toolType: type });
   };
 
   const toggleCollapse = () => {

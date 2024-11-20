@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { useEdgeReducerV0, useTurboEdgeV0 } from "@turbo-ing/edge-v0";
 import { jamReducer, initialState } from "./reducers/jam";
 import { JamState, JamAction } from "./types"
 import RoomModal from "./components/RoomModal";
-import Header from "./components/Header";
-import Board from "./components/Board";
 import RoomInfo from "./components/RoomInfo";
+import Header from "./components/Header";
+// import Board from "./components/Board";
+const Board = lazy(() => import("./components/Board"));
 
 function App() {
   const [name, setName] = useState("");
@@ -56,17 +57,24 @@ function App() {
         <div className="flex-grow overflow-hidden bg-gray-100 relative">
           {roomIdCommitted ? (
             connected ? (
-              <Board
-                dispatch={dispatch}
-                state={state}
-                currentPeerId={currentPeerId}
-              />
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center h-full text-xl font-semibold text-background-color">
+                    Loading Board...
+                  </div>
+                }
+              >
+                <Board
+                  dispatch={dispatch}
+                  state={state}
+                  currentPeerId={currentPeerId}
+                />
+              </Suspense>
             ) : (
               <div className="flex items-center justify-center h-full text-xl font-semibold text-background-color">
                 Connecting...
               </div>
-            )
-          ) : (
+          )) : (
             <div className="flex items-center justify-center h-full text-xl font-semibold text-background-color">
               Join a
               <button

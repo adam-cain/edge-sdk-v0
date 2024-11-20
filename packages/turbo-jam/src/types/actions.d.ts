@@ -32,8 +32,8 @@ export interface StartDrawingAction extends BaseJamAction {
   };
 }
 
-export interface UpdateDrawingAction extends BaseJamAction {
-  type: 'UPDATE_DRAWING';
+export interface UpdateDrawingPropertiesAction extends BaseJamAction {
+  type: 'UPDATE_DRAWING_PROPERTIES';
   payload: {
     drawingId: DrawingId;
     properties: Partial<ShapeProperties>;
@@ -85,15 +85,25 @@ export interface ResizeDrawingAction extends BaseJamAction {
   };
 }
 
+export interface UpdateDrawingAppearanceAction extends BaseJamAction {
+  type: 'UPDATE_DRAWING_APPEARANCE';
+  payload: {
+    drawingId: DrawingId;
+    color: string;
+    strokeColor: string;
+    strokeWidth: number;
+  }
+}
+
 export type JamAction =
   | SetRecipientNameAction
   | UpdateCursorAction
   | StartDrawingAction
-  | UpdateDrawingAction
+  | UpdateDrawingPropertiesAction
   | AddPointAction
   | StopDrawingAction
   | ResetStateAction
   | DeleteDrawingAction
   | MoveCompletedDrawingAction
   | ResizeDrawingAction
-  
+  | UpdateDrawingAppearanceAction

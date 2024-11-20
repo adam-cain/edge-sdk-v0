@@ -72,7 +72,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
   }, [updateCanvasSize]);  
   
   useEffect(() => {
-    
+  
   const handleKeyDown = (event: KeyboardEvent) => {
       // Check if Backspace key is pressed
       if (event.key === "Backspace") {

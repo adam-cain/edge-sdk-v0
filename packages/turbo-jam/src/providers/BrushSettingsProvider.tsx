@@ -4,7 +4,7 @@ import { BrushSettings, ToolType } from "../types";
 
 interface BrushSettingsContextType {
   brushSettings: BrushSettings;
-  dispatch: React.Dispatch<BrushSettingsAction>;
+  dispatchBrushSettings: React.Dispatch<BrushSettingsAction>;
 }
 
 const BrushSettingsContext = createContext<BrushSettingsContextType | undefined>(undefined);
@@ -49,7 +49,7 @@ export const BrushSettingsProvider: React.FC<BrushSettingsProviderProps> = ({
   children,
   currentPeerId,
 }) => {
-  const [brushSettings, dispatch] = useReducer(brushSettingsReducer, {
+  const [brushSettings, dispatchBrushSettings] = useReducer(brushSettingsReducer, {
     color: stringToColor(currentPeerId),
     strokeColor: "rgba(0, 0, 0, 0)",
     strokeWidth: 5,
@@ -57,7 +57,7 @@ export const BrushSettingsProvider: React.FC<BrushSettingsProviderProps> = ({
   });
 
   return (
-    <BrushSettingsContext.Provider value={{ brushSettings, dispatch }}>
+    <BrushSettingsContext.Provider value={{ brushSettings, dispatchBrushSettings }}>
       {children}
     </BrushSettingsContext.Provider>
   );
