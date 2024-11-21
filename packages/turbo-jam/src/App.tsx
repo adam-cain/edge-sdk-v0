@@ -11,7 +11,7 @@ const Board = lazy(() => import("./components/Board"));
 
 function App() {
   const [name, setName] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [roomId, setRoomId] = useState("");
   const [currentView, setCurrentView] = useState("landing"); // landing | room
 
@@ -76,12 +76,12 @@ function App() {
 
   return (
     <>
-      <div className="mx-auto h-screen flex flex-col">
+      <div className="mx-auto h-screen flex flex-col ">
         {/* Header */}
-        <Header onNewRoom={() => setIsModalOpen(true)} />
+        <Header onRoomClick={() => setIsModalOpen(true)} onLanding={currentView === "landing"} />
 
         {/* Main Body */}
-        <div className="flex-grow overflow-hidden bg-gray-100 relative">
+        <div className="flex-grow overflow-hidden bg-gray-50 relative">
           {currentView === "landing" ? (
             <LandingPage></LandingPage>
           ) : currentView === "room" ? (
