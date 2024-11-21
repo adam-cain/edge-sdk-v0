@@ -10,7 +10,7 @@ export default function LandingPage() {
             <div className="absolute top-0 z-10 flex size-full md:flex-row sm:text-stone-900 flex-col-reverse ">
                 {/* Left content */}
                 <div className="flex flex-col flex-1 px-6 text-left z-10 h-full sm:justify-center">
-                    <h1 className="text-6xl sm: md:text-8xl lg:text-9xl xl:text-[10rem] font-bold mb-4 ">
+                    <h1 className="text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-bold mb-4 ">
                         <span>Introducing</span>
                         <br />
                         <span>Turbo Jam</span>

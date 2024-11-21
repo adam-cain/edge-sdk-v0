@@ -5,12 +5,13 @@ interface HeaderProps {
     onLanding: boolean
 }
 
-
 const Header = ({ onRoomClick, onLanding }: HeaderProps) => (
     <div className="container px-1 mx-auto my-2 flex justify-between text-white">
         <div className="flex items-center justify-center">
-            <img src={TurboLogo} width={150} alt="Turbo Logo" />
-            <span className="text-3xl font-extralight">JAM</span>
+            <a href="/" className="flex items-center">
+                <img src={TurboLogo} width={150} alt="Turbo Logo" />
+                <span className="text-3xl font-extralight">JAM</span>
+            </a>
         </div>
         <button
             onClick={onRoomClick}
@@ -27,4 +28,4 @@ const Header = ({ onRoomClick, onLanding }: HeaderProps) => (
     </div>
 );
 
-export default Header
+export default Header;
