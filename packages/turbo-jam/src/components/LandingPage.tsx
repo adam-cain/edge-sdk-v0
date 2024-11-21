@@ -4,13 +4,13 @@ export default function LandingPage() {
     return (
         <div className="relative h-screen text-xl font-semibold text-black">
             {/* CurvedSection as the background */}
-            <CurvedSection className="absolute inset-0 bg-background-color -z-1 h-[40%]" />
+            <CurvedSection className="absolute inset-0 bg-background-color -z-1 h-[35%]" />
 
             {/* Flex container for content */}
             <div className="absolute top-0 z-10 flex size-full md:flex-row sm:text-stone-900 flex-col-reverse ">
                 {/* Left content */}
-                <div className="flex flex-col flex-1 px-6 text-left z-10 h-full sm:justify-center ">
-                    <h1 className="text-5xl md:text-[6.2rem] lg:text-9xl xl:text-[10rem] font-bold mb-4 ">
+                <div className="flex flex-col flex-1 px-6 text-left z-10 h-full sm:justify-center">
+                    <h1 className="text-6xl sm: md:text-8xl lg:text-9xl xl:text-[10rem] font-bold mb-4 ">
                         <span>Introducing</span>
                         <br />
                         <span>Turbo Jam</span>
@@ -37,7 +37,6 @@ export default function LandingPage() {
                                 P2P
                             </li>
                         </ul>
-
                     </div>
                 </div>
 
@@ -46,7 +45,7 @@ export default function LandingPage() {
                     <img
                         src={Mockup}
                         alt=""
-                        className="w-[200px] sm:w-[250px] md:w-[290px] lg:w-[400px] xl:w-[550px] -z-1"
+                        className="w-[200px] sm:w-[280px] md:w-[290px] lg:w-[400px] xl:w-[550px] -z-1"
                     />
                 </div>
             </div>
