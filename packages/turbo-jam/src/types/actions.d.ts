@@ -95,6 +95,14 @@ export interface UpdateDrawingAppearanceAction extends BaseJamAction {
   }
 }
 
+export interface UpdateTextAction extends BaseJamAction {
+  type: "UPDATE_TEXT",
+  payload: {
+    drawingId: DrawingId;
+    text: string;
+  }
+}
+
 export type JamAction =
   | SetRecipientNameAction
   | UpdateCursorAction
@@ -107,3 +115,4 @@ export type JamAction =
   | MoveCompletedDrawingAction
   | ResizeDrawingAction
   | UpdateDrawingAppearanceAction
+  | UpdateTextAction

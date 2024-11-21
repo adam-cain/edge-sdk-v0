@@ -290,6 +290,24 @@ export function useDrawing({
     console.log("resizing");
   }
 
+  const handleEdit = () => {
+    if(!selectedDrawing) return
+    switch (selectedDrawing.properties.type){
+      case "text": {
+        const newText = prompt("Enter text", selectedDrawing.properties.text)
+        if(!newText) return
+        dispatch({
+          type: "UPDATE_TEXT",
+          payload: {
+            drawingId: selectedDrawing.id,
+            text: newText
+          },
+          peerId: currentDrawingId || ""
+        })
+      }
+    }
+  }
+
   return {
     isDrawing,
     boundingBox,
@@ -297,6 +315,7 @@ export function useDrawing({
     stopDrawing,
     handleMove,
     handleDelete,
-    handleResize
+    handleResize,
+    handleEdit
   };
 }

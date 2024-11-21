@@ -218,17 +218,29 @@ export class FreeHand implements Shape {
             throw Error("Expected Freehand Drawing");
         }
         const { properties } = drawing;
-
+        const points = properties.points;
+        const distanceThreshold = 1; // Minimum distance between points to render
+    
+        if (points.length < 2) return;
+    
         ctx.beginPath();
-        properties.points.forEach((point, index) => {
-            const canvasX = point.x;
-            const canvasY = point.y;
-            if (index === 0) {
-                ctx.moveTo(canvasX, canvasY);
-            } else {
-                ctx.lineTo(canvasX, canvasY);
+        let lastX = points[0].x;
+        let lastY = points[0].y;
+        ctx.moveTo(lastX, lastY);
+    
+        for (let i = 1; i < points.length; i++) {
+            const { x, y } = points[i];
+            const dx = x - lastX;
+            const dy = y - lastY;
+    
+            // Calculate the Euclidean distance
+            if (Math.sqrt(dx * dx + dy * dy) >= distanceThreshold) {
+                ctx.lineTo(x, y);
+                lastX = x;
+                lastY = y;
             }
-        });
+        }
+    
         ctx.strokeStyle = drawing.color;
         ctx.lineWidth = drawing.strokeWidth;
         ctx.stroke();

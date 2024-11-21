@@ -44,7 +44,8 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
     stopDrawing,
     handleMove,
     handleDelete,
-    handleResize
+    handleResize,
+    handleEdit,
   } = useDrawing({
     dispatch,
     currentPeerId,
@@ -69,11 +70,11 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
     updateCanvasSize();
     window.addEventListener("resize", updateCanvasSize);
     return () => window.removeEventListener("resize", updateCanvasSize);
-  }, [updateCanvasSize]);  
-  
+  }, [updateCanvasSize]);
+
   useEffect(() => {
-  
-  const handleKeyDown = (event: KeyboardEvent) => {
+
+    const handleKeyDown = (event: KeyboardEvent) => {
       // Check if Backspace key is pressed
       if (event.key === "Backspace") {
         event.preventDefault(); // Prevent default browser back navigation
@@ -193,7 +194,7 @@ function Board({ dispatch, state, currentPeerId }: BoardProps) {
         scale={scale}
         panOffset={panOffset}
       />
-      <BoundingBoxComponent boundingBox={boundingBox} scale={scale} panOffset={panOffset} isGrabbing={isDrawing} onResizeStart={handleResize}/>
+      <BoundingBoxComponent boundingBox={boundingBox} scale={scale} panOffset={panOffset} isGrabbing={isDrawing} onResizeStart={handleResize} onEdit={handleEdit} />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Drawing, JamState } from '../types/state';
 import { JamAction } from '../types/actions';
 import { FreehandShapeProperties, Point, ShapeProperties } from "../types";
 import { resizeDrawing } from "../util/shapes";
+import { stat } from "fs";
 
 export const initialState: JamState = {
   cursors: {},
@@ -237,14 +238,14 @@ export function jamReducer(
 
       const drawing = state.completedDrawings[drawingId];
       if (!drawing) return state;
-    
+
       const updatedDrawing = {
         ...drawing,
         color,
         strokeColor,
         strokeWidth,
       };
-    
+
       return {
         ...state,
         completedDrawings: {
@@ -252,6 +253,29 @@ export function jamReducer(
           [drawingId]: updatedDrawing,
         },
       };
+    }
+
+    case "UPDATE_TEXT": {
+      const { drawingId, text } = action.payload
+
+      const drawing = state.completedDrawings[drawingId];
+      if (!drawing || drawing.properties.type !== "text") return state;
+
+      const updatedDrawing: Drawing = {
+        ...drawing,
+        properties: {
+          ...drawing.properties,
+          text
+        }
+      };
+
+      return {
+        ...state,
+        completedDrawings: {
+          ...state.completedDrawings,
+          [drawingId]: updatedDrawing
+        }
+      }
     }
 
     case "RESET_STATE": {
