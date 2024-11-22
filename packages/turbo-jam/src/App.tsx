@@ -6,12 +6,14 @@ import RoomModal from "./components/RoomModal";
 import RoomInfo from "./components/RoomInfo";
 import Header from "./components/Header";
 import LandingPage from "./components/LandingPage";
+import JoinModal from "./components/JoinModal";
 
 const Board = lazy(() => import("./components/Board"));
 
 function App() {
   const [name, setName] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [hasJoinedRoomLink, setHasJoinedRoomLink] = useState(false)
   const [roomId, setRoomId] = useState("");
   const [currentView, setCurrentView] = useState("landing"); // landing | room
 
@@ -34,6 +36,7 @@ function App() {
       const hash = window.location.hash || "#/";
       if (hash.startsWith("#/room/")) {
         setIsModalOpen(false)
+        setHasJoinedRoomLink(true)
         const roomIdFromHash = hash.split("/")[2];
         setRoomId(roomIdFromHash);
         setCurrentView("room");
@@ -116,7 +119,7 @@ function App() {
         </div>
       </div>
 
-      {/* Room Modal */}
+      {/* Room Modal's */}
       <RoomModal
         name={name}
         setName={setName}
@@ -127,6 +130,13 @@ function App() {
         }}
         isOpen={isModalOpen}
         closeModal={() => setIsModalOpen(false)}
+      />
+
+      <JoinModal
+        name={name}
+        setName={setName}
+        isOpen={hasJoinedRoomLink}
+        closeModal={() => setHasJoinedRoomLink(false)}
       />
     </>
   );
