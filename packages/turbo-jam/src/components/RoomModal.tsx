@@ -34,9 +34,20 @@ function RoomModal({ name, setName, setRoomIdCommitted, isOpen, closeModal }: Ro
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000]">
             <div className="bg-white rounded-lg p-6 w-96 gap-3 flex flex-col">
-                <h2 className="text-xl font-bold">
-                    {step === "choose" ? "Choose an Option" : step === "join" ? "Join a Room" : "Room Created"}
-                </h2>
+                {/* Title and Exit Button */}
+                <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-bold">
+                        {step === "choose" ? "Choose an Option" : step === "join" ? "Join a Room" : "Room Created"}
+                    </h2>
+                    <button
+                        className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                        onClick={closeModal}
+                        aria-label="Close modal"
+                    >
+                        &#10005; {/* X symbol */}
+                    </button>
+                </div>
+
 
                 {step === "choose" && (
                     <>
