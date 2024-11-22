@@ -1,4 +1,6 @@
 import Mockup from "../assets/Holding-Hand-Smart-Phone-Mockup.png";
+import ExternalLink from "../assets/external-link.svg"
+import { ExternalLinkIcon } from "./Icons";
 
 export default function LandingPage() {
     return (
@@ -9,7 +11,8 @@ export default function LandingPage() {
             {/* Flex container for content */}
             <div className="absolute top-0 z-10 flex size-full md:flex-row sm:text-stone-900 flex-col-reverse ">
                 {/* Left content */}
-                <div className="flex flex-col flex-1 px-6 text-left z-10 h-full sm:justify-center">
+                <div className="flex flex-col flex-1 px-6 text-left xl:items-center z-10 h-full sm:justify-center">
+                    <div>
                     <h1 className="text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-bold mb-4 ">
                         <span>Introducing</span>
                         <br />
@@ -18,7 +21,8 @@ export default function LandingPage() {
                     <section className="font-light md:text-2xl mb-2">
                         A collaborative whiteboard built with <span className="">
                             <a href="https://turbo.ing" className="bg-stone-900 text-white italic font-semibold p-1 hover:bg-background-color rounded">
-                                Turbo*
+                                Turbo
+                                <ExternalLinkIcon width={15} height={15} className="inline stroke-white ml-0.5 mb-3"/>
                             </a>
                         </span>
                     </section>
@@ -38,6 +42,8 @@ export default function LandingPage() {
                             </li>
                         </ul>
                     </div>
+                    </div>
+                    
                 </div>
 
                 {/* Image on the right */}

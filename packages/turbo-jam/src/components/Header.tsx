@@ -17,7 +17,8 @@ const Header = ({ onRoomClick, onLanding }: HeaderProps) => (
             onClick={onRoomClick}
             className={`border rounded px-3 hover:bg-white hover:text-background-color transition text-white font-medium
             ${onLanding ?
-                    "bg-blue-500 border-none"
+                    "bg-[#00A5CF] border-none test"
+                    // "bg-blue-500 border-none"
                     :
                     "border-1 border-white"}    
                 `}

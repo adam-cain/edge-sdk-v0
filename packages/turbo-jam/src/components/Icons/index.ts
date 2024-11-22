@@ -11,3 +11,4 @@ export { default as LineDrawIcon } from './Line';
 export { default as TextIcon } from './Text';
 export { default as CollapseIcon } from './Collapse';
 export { default as CursorIcon } from './Cursor';
+export { default as ExternalLinkIcon } from'./ExternalLink'
