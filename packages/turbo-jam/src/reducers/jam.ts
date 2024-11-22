@@ -3,7 +3,6 @@ import { Drawing, JamState } from '../types/state';
 import { JamAction } from '../types/actions';
 import { FreehandShapeProperties, Point, ShapeProperties } from "../types";
 import { resizeDrawing } from "../util/shapes";
-import { stat } from "fs";
 
 export const initialState: JamState = {
   cursors: {},
