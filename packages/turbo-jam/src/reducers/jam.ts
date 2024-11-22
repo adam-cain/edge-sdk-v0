@@ -100,8 +100,6 @@ export function jamReducer(
         } as ShapeProperties,
       };
 
-      console.log("Updating drawing", drawingId)
-
       return {
         ...state,
         activeDrawings: addOrUpdateDrawing(
