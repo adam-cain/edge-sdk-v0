@@ -15,7 +15,7 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hasJoinedRoomLink, setHasJoinedRoomLink] = useState(false)
   const [roomId, setRoomId] = useState("");
-  const [currentView, setCurrentView] = useState("landing"); // landing | room
+  const [currentView, setCurrentView] = useState<"landing" | "view" | "room">("landing");
 
   const [state, dispatch, connected] = useEdgeReducerV0<JamState, JamAction>(
     jamReducer,
@@ -29,6 +29,8 @@ function App() {
 
   const turboEdge = useTurboEdgeV0();
   const currentPeerId = turboEdge?.node.peerId?.toString() || "";
+  const handleRoomClick = () => setIsModalOpen(true);
+  const isLandingPage = currentView === "landing";
 
   // Handle route changes
   useEffect(() => {
@@ -83,7 +85,7 @@ function App() {
     <>
       <div className="mx-auto h-screen flex flex-col ">
         {/* Header */}
-        <Header onRoomClick={() => setIsModalOpen(true)} onLanding={currentView === "landing"} />
+        <Header onRoomClick={handleRoomClick} onLanding={isLandingPage} />
 
         {/* Main Body */}
         <div className="flex-grow overflow-hidden bg-gray-50 relative">
@@ -93,7 +95,7 @@ function App() {
             connected ? (
               <Suspense
                 fallback={
-                  <div className="flex items-center justify-center h-full text-xl font-semibold text-background-color">
+                  <div className="flex items-center justify-center h-full text-xl font-semibold text-stone-700">
                     Loading Board...
                   </div>
                 }
@@ -113,8 +115,8 @@ function App() {
                 )}
               </Suspense>
             ) : (
-              <div className="flex items-center justify-center h-full text-xl font-semibold text-background-color">
-                Connecting...
+              <div className="flex items-center justify-center h-full text-xl font-semibold text-stone-700">
+                Connecting to Peers...
               </div>
             )
           ) : null}
