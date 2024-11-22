@@ -36,7 +36,9 @@ function App() {
       const hash = window.location.hash || "#/";
       if (hash.startsWith("#/room/")) {
         setIsModalOpen(false)
-        setHasJoinedRoomLink(true)
+        if (name) {
+          setHasJoinedRoomLink(true)
+        }
         const roomIdFromHash = hash.split("/")[2];
         setRoomId(roomIdFromHash);
         setCurrentView("room");

@@ -287,7 +287,6 @@ export function useDrawing({
     setResizeStartPoint(coords)
     setResizeDirection(direction)
     setIsResizing(true)
-    console.log("resizing");
   }
 
   const handleEdit = () => {
