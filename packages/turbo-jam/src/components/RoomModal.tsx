@@ -52,7 +52,7 @@ function RoomModal({ name, setName, setRoomIdCommitted, isOpen, closeModal }: Ro
                 {step === "choose" && (
                     <>
                         {/* Input for name */}
-                        <div className="">
+                        <div className="mb-2">
                             <input
                                 className="p-2 px-3 rounded w-full border focus:ring-gray-500 focus:outline-none focus:ring-2"
                                 placeholder="Enter Your Name"
@@ -65,15 +65,15 @@ function RoomModal({ name, setName, setRoomIdCommitted, isOpen, closeModal }: Ro
                             <button
                                 className="text-black border rounded px-4 py-2 hover:shadow-inner transition"
                                 onClick={() => setStep("join")}
-                                // Disable if no name, handled through Anonymous
-                                // disabled={!name.trim()}
+                            // Disabled if no name selected, handled through Anonymous as default name
+                            // disabled={!name.trim()}
                             >
                                 Join a Room
                             </button>
                             <button
                                 className="text-black border rounded px-4 py-2 hover:shadow-inner transition"
                                 onClick={handleCreateRoom}
-                                // disabled={!name.trim()}
+                            // disabled={!name.trim()}
                             >
                                 Create a Room
                             </button>
@@ -135,7 +135,7 @@ function RoomModal({ name, setName, setRoomIdCommitted, isOpen, closeModal }: Ro
                             <p className="text-sm mb-0.5">
                                 Click this link to copy and share it with others:
                             </p>
-                            
+
                             <p
                                 className="text-blue-500 break-all cursor-pointer hover:underline"
                                 onClick={() => handleCopyToClipboard(`${currentDomain}/#/room/${createdRoomId}`)}

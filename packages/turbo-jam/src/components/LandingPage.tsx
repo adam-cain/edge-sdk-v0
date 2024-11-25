@@ -6,19 +6,17 @@ export default function LandingPage() {
         <div className="h-screen text-xl font-semibold relative">
             <CurvedSection className="absolute inset-0 bg-background-color z-1  h-[35%]" />
             {/* Image Section */}
-            <div className="absolute right-0 my-auto max-h-[75dvh] max-w-[65vw] z-2">
+            {/* <div className="absolute right-0 my-auto max-h-[75dvh] max-w-[65vw] z-2">
                 <img
                     src={Mockup}
                     alt=""
                     className="max-h-[75dvh]"
                 />
-            </div>
+            </div> */}
             {/* Text Content */}
             <div className="absolute inset-0 flex flex-col flex-1 text-left xl:items-center z-3 justify-end xl:justify-center mx-auto xl:mr-[20%] -translate-y-[20%] xl:translate-y-0 px-1 md:px-5">
                 <div className="min-h-fit h-fit ">
-                    <h1 className="text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-bold mb-4 container">
-                        <span>Introducing</span>
-                        <br />
+                    <h1 className="text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-bold mb-4 container">
                         <span>Turbo Jam</span>
                     </h1>
                     <section className="font-light text-base sm:text-2xl mb-2">
@@ -37,7 +35,7 @@ export default function LandingPage() {
                             </a>
                         </span>
                     </section>
-                    <ul className="font-medium space-y-2">
+                    {/* <ul className="font-medium space-y-2">
                         <li>
                             <span className="mr-2">✓</span>
                             Free
@@ -50,7 +48,7 @@ export default function LandingPage() {
                             <span className="mr-2">✓</span>
                             P2P
                         </li>
-                    </ul>
+                    </ul> */}
                 </div>
             </div>
         </div>
