@@ -1,4 +1,4 @@
-import Mockup from "../assets/Holding-Hand-Smart-Phone-Mockup.png";
+// import Mockup from "../assets/Holding-Hand-Smart-Phone-Mockup.png";
 import { ExternalLinkIcon } from "./Icons";
 
 export default function LandingPage() {
